@@ -12,9 +12,9 @@
 class Player {
 
   constructor(tetris) {
-    this.piece = null
-    this.pos = null
     this.context = tetris.context
+    this.arena = tetris.arena
+    this.reset()
   }
 
   draw() {
@@ -62,11 +62,11 @@ class Player {
   reset() {
     this.chooseNewPiece()
 
-    let {x, y} = this.tetris.arena.startPosition
+    let {x, y} = this.arena.startPosition
 
     this.setPosition({
-      x: x - this.size/2|0,
-      y: y - this.size
+      x: x - this.size/2|0, // center horizontally
+      y: y - this.size      // start offscreen
     })
   }
 }

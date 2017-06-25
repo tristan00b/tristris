@@ -82,7 +82,6 @@ class Tetris {
     this.context = canvas.getContext('2d')
     this.arena = new Arena(this)
     this.player = new Player(this)
-    this.resetPlayer()
 
     document.addEventListener('keydown', (event) => {
       switch (event.keyCode) {
