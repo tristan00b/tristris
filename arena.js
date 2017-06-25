@@ -13,9 +13,10 @@
 class Arena {
 
   constructor(tetris, width=11, height=20) {
+    this.tetris = tetris
     this.width = width
     this.height = height
-    this.tetris = tetris
+    this.startPosition = {x:width/2|0, y:0}
     this.grid = zeroMatrix(width, height)
     this.reset()
   }

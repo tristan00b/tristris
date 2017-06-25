@@ -13,8 +13,8 @@ class Player {
 
   constructor(tetris) {
     this.tetris = tetris
-    this.pos = {x: 0, y: 0}
     this.piece = null
+    this.pos = null
   }
 
   draw() {
@@ -49,11 +49,24 @@ class Player {
     this.piece = rotated
   }
 
-  reset(pos) {
+  chooseNewPiece() {
     let l = pieces[Math.random()*pieces.length | 0]
     this.piece = tetrominos[l]
     this.size = this.piece.length
+  }
+
+  setPosition(pos) {
     this.pos = pos
-    this.pos.y -= this.size // start off screen
+  }
+
+  reset() {
+    this.chooseNewPiece()
+
+    let {x, y} = this.tetris.arena.startPosition
+
+    this.setPosition({
+      x: x - this.size/2|0,
+      y: y - this.size
+    })
   }
 }
