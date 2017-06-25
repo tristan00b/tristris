@@ -12,16 +12,16 @@
 class Player {
 
   constructor(tetris) {
-    this.tetris = tetris
     this.piece = null
     this.pos = null
+    this.context = tetris.context
   }
 
   draw() {
     this.piece.forEach((row, yOffset) => {
       row.forEach((value, xOffset) => {
         if (value) {
-          this.tetris.drawTile(
+          drawTile(this.context,
             this.pos.x + xOffset,
             this.pos.y + yOffset,
             pieceColours[value-1])

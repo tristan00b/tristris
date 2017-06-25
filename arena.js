@@ -13,7 +13,7 @@
 class Arena {
 
   constructor(tetris, width=11, height=20) {
-    this.tetris = tetris
+    this.context = tetris.context
     this.width = width
     this.height = height
     this.startPosition = {x:width/2|0, y:0}
@@ -25,7 +25,7 @@ class Arena {
     this.grid.forEach((row, y) => {
       row.forEach((value, x) => {
         if (value) {
-          this.tetris.drawTile(x, y, pieceColours[value-1])
+          drawTile(this.context, x, y, pieceColours[value-1])
         }
       })
     })

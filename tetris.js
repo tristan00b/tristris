@@ -65,6 +65,15 @@ function identityMatrix(width, height) {
   return Array(height || width).fill().map(() => Array(width).fill(1))
 }
 
+function drawTile(context, x, y, colour) {
+  [x, y] = [x*tileScale, y*tileScale]
+  context.fillStyle = colour
+  context.fillRect(x, y, tileScale, tileScale)
+  context.strokeStyle = 'white'
+  context.lineWidth = 1
+  context.strokeRect(x, y, tileScale, tileScale)
+}
+
 class Tetris {
 
   constructor(canvas) {
@@ -115,15 +124,6 @@ class Tetris {
   clearCanvas() {
     this.context.fillStyle = 'black'
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height)
-  }
-
-  drawTile(x, y, colour) {
-    [x, y] = [x*tileScale, y*tileScale]
-    this.context.fillStyle = colour
-    this.context.fillRect(x, y, tileScale, tileScale)
-    this.context.strokeStyle = 'white'
-    this.context.lineWidth = 1
-    this.context.strokeRect(x, y, tileScale, tileScale)
   }
 
   draw() {
