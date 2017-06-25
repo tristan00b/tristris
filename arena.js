@@ -16,9 +16,8 @@ class Arena {
     this.context = tetris.context
     this.width = width
     this.height = height
-    this.startPosition = {x:width/2|0, y:0}
+    this.startPosition = {x: width/2|0, y: 0}
     this.grid = zeroMatrix(width, height)
-    this.reset()
   }
 
   draw() {
