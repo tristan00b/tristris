@@ -41,7 +41,7 @@ const tetrominos = {
         [0, 7, 7]],
 }
 
-const pieces = Object.keys(tetrominos)
+const pieces = 'IIOTJLSZ'
 
 const pieceColours = [
   '#00A4E2',
