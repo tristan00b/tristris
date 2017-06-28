@@ -12,7 +12,7 @@
 
 class Arena {
 
-  constructor(tetris, width=11, height=20) {
+  constructor(tetris, width=10, height=20) {
     this.context = tetris.context
     this.width = width
     this.height = height

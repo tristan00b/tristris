@@ -53,7 +53,7 @@ const pieceColours = [
   '#18B05B',
 ]
 
-const tileScale = 40
+const tileScale = 36
 
 const timeStep = 1000 // 1 second
 
@@ -79,9 +79,13 @@ class Tetris {
   constructor(canvas) {
 
     this.canvas = canvas
+    this.canvas.width = tileScale * 10;
+    this.canvas.height = tileScale * 20;
     this.context = canvas.getContext('2d')
     this.arena = new Arena(this)
     this.player = new Player(this)
+    this.score = 0
+    this.highscore = 0
 
     document.addEventListener('keydown', (event) => {
       switch (event.keyCode) {
@@ -121,8 +125,7 @@ class Tetris {
   }
 
   clearCanvas() {
-    this.context.fillStyle = 'black'
-    this.context.fillRect(0, 0, this.canvas.width, this.canvas.height)
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
   }
 
   draw() {
@@ -146,12 +149,13 @@ class Tetris {
       player.translate({x: 0, y: -1})
 
       if (arena.overflows(player)) {
-        arena.reset()
+        this.updateHighscore()
+        this.restartGame()
       } else {
         arena.merge(player)
       }
 
-      arena.sweep()
+      this.updateScore(arena.sweep())
       this.resetPlayer()
     }
   }
@@ -199,7 +203,35 @@ class Tetris {
   resetPlayer() {
     this.player.reset()
   }
-}
 
+  restartGame() {
+    this.setScore(0)
+    this.arena.reset()
+  }
+
+  updateScore(linesCleared) {
+    if (linesCleared == 0) return;
+    let points = this.score + (linesCleared ? 10**linesCleared : 0)
+    this.setScore(points)
+  }
+
+  setScore(points) {
+    this.score = points
+    document.getElementById('score').innerHTML =
+      `You have ${this.score} points` + (this.score > 100000 ? '!' : '.');
+  }
+
+  updateHighscore() {
+    if (this.score > this.highscore) {
+      this.setHighscore(this.score)
+    }
+  }
+
+  setHighscore(points) {
+    this.highscore = points
+    document.getElementById('highscore').innerHTML =
+      `Highscore ${this.highscore} points.`;
+  }
+}
 
 let tetris = new Tetris(canvas) // object creation starts game

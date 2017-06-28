@@ -3,10 +3,29 @@
   <head>
     <meta charset="utf-8">
     <title>Tetris</title>
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" media="screen" href="style.css">
   </head>
   <body>
-    <canvas class="tetris" width="440" height="800"></canvas>
+
+      <header></header>
+
+      <main>
+        <div class="side-panel">
+        </div>
+
+        <div class="game-panel">
+          <canvas class="tetris"></canvas>
+        </div>
+
+        <div class="side-panel">
+        </div>
+      </main>
+
+      <footer>
+        <span id="score">You have 0 points.</span>
+        <span id="highscore">Highscore 0 points.</span>
+      </footer>
+
     <script src="player.js"></script>
     <script src="arena.js"></script>
     <script src="tetris.js"></script>
