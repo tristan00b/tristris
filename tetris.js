@@ -74,9 +74,11 @@ function drawTile(context, x, y, colour) {
   context.strokeRect(x, y, tileScale, tileScale)
 }
 
-class Tetris {
+class Tetris extends EventDispatcher {
 
   constructor(canvas) {
+
+    super()
 
     this.canvas = canvas
     this.canvas.width = tileScale * 10;
@@ -84,6 +86,7 @@ class Tetris {
     this.context = canvas.getContext('2d')
     this.arena = new Arena(this)
     this.player = new Player(this)
+    this.audio = new SoundPlayer(this)
     this.score = 0
     this.highscore = 0
 
@@ -100,6 +103,9 @@ class Tetris {
           break
         case 40:
           this.lowerPlayer()
+          break
+        case 77:
+          this.toggleMusic()
           break
       }
     })
@@ -198,6 +204,8 @@ class Tetris {
         player.translate({x:0, y:-1})
       }
     }
+
+    this.dispatch({type: 'tetris/playerRotated'});
   }
 
   resetPlayer() {
@@ -213,6 +221,9 @@ class Tetris {
     if (linesCleared == 0) return;
     let points = this.score + (linesCleared ? 10**linesCleared : 0)
     this.setScore(points)
+    this.dispatch({
+      type: 'tetris/linesCleared', linesCleared: linesCleared
+    });
   }
 
   setScore(points) {
@@ -231,6 +242,10 @@ class Tetris {
     this.highscore = points
     document.getElementById('highscore').innerHTML =
       `Highscore ${this.highscore} points.`;
+  }
+
+  toggleMusic() {
+    this.dispatch({type: 'tetris/toggleMusic'})
   }
 }
 
