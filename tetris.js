@@ -91,23 +91,12 @@ class Tetris extends EventDispatcher {
     this.highscore = 0
 
     document.addEventListener('keydown', (event) => {
-      switch (event.keyCode) {
-        case 38:
-          this.rotatePlayer()
-          break
-        case 37:
-          this.movePlayer(-1)
-          break
-        case 39:
-          this.movePlayer(1)
-          break
-        case 40:
-          this.lowerPlayer()
-          break
-        case 77:
-          this.toggleMusic()
-          break
-      }
+      if (event.altKey || event.ctrlKey || event.metaKey) return;
+      else if (event.keyCode === 38) this.rotatePlayer();
+      else if (event.keyCode === 37) this.movePlayer(-1);
+      else if (event.keyCode === 39) this.movePlayer(1);
+      else if (event.keyCode === 40) this.lowerPlayer();
+      else if (event.keyCode === 77) this.toggleMusic();
     })
 
     this.prevTime = 0
