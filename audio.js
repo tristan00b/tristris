@@ -6,56 +6,53 @@
   License: GPLv3
 */
 
-const sfxPath = 'assets/audio/effects';
-const musPath = 'assets/audio/soundtrack';
-const numTracks = 13;
-
 class SoundPlayer extends EventObserver {
 
-  constructor(dispatcher) {
+  constructor(data) {
 
     super();
 
-    const sfx = [
-      new Audio(sfxPath + '/ticktock.wav'), // on rotate
-      new Audio(sfxPath + '/blip.wav')      // on lines cleared
-    ];
+    this.data = data
+
+    this.sfx = [
+      new Audio(data.sound.sfxPath + '/ticktock.wav'), // on rotate
+      new Audio(data.sound.sfxPath + '/blip.wav')      // on lines cleared
+    ]
+
+    this.bgMusic = new Audio()
+    this.bgMusic.onended = () => this.playNextTrack()
 
     this.eventHandlers = {
-      'tetris/linesCleared': (event) => {
-        sfx[0].cloneNode().play()
-      },
-      'tetris/playerRotated': (event) => {
-        sfx[1].cloneNode().play()
-      },
-      'tetris/toggleMusic': (event) => {
-        this.toggleMusic();
-      }
+      'tetris/arena/rowsCleared': () => this.sfx[0].cloneNode().play(),
+      'tetris/player/rotated': () => this.sfx[1].cloneNode().play(),
+      'tetris/game/started': () => this.playNextTrack(),
+      'tetris/game/paused': () => this.stopMusic(),
+      'tetris/game/unpaused': () => this.startMusic(),
+      'tetris/sound/toggleMusic': () => this.toggleMusic(),
     }
 
-    for (let event in this.eventHandlers) {
-      dispatcher.subscribe(event, this);
-    }
-
-    this.soundtrack = new Audio();
-    this.soundtrack.onended = () => this.playNextTrack();
-    this.playNextTrack();
+    data.eventDispatcher.subscribeAll(this.eventHandlers, this)
   }
 
   playNextTrack() {
     // Choose a random track to play, then play it
-    const trackNo = (Math.random()*numTracks|0) + 1;
+    const trackNo = (Math.random()*this.data.sound.numTracks|0) + 1;
     const file = String(trackNo).padStart(2, '0') + '.mp3';
     console.log('playing: ' + file);
-    this.soundtrack.src = musPath + '/' + file;
-    this.soundtrack.play();
+    this.bgMusic.src = this.data.sound.musPath + '/' + file;
+    this.bgMusic.play();
+  }
+
+  startMusic() {
+    this.bgMusic.play()
+  }
+
+  stopMusic() {
+    this.bgMusic.pause()
   }
 
   toggleMusic() {
-    if (this.soundtrack.paused) {
-      this.soundtrack.play();
-    } else {
-      this.soundtrack.pause()
-    }
+    (this.data.bgMusicMuted = !this.data.bgMusicMuted) ?
+      this.bgMusic.pause() : this.bgMusic.play()
   }
 }

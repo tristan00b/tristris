@@ -8,10 +8,11 @@
 
 class EventObserver {
   notify(event) {
-    if (event.type in this.eventHandlers) {
-      let handler = this.eventHandlers[event.type];
-      handler(event);
-    }
+    // Subclass must provide a dict of event handlers in the form:
+    // this.eventHandlers = {
+    //   evenType<string>: eventHanlder<function>
+    // }
+    this.eventHandlers[event.type](event);
   }
 }
 
@@ -30,6 +31,12 @@ class EventDispatcher {
     }
   }
 
+  subscribeAll(events, observer) {
+    for (let event in events) {
+      this.subscribe(event, observer);
+    }
+  }
+
   unsubscribe(eventType, observer) {
     if (eventType in this.eventObservers) {
       this.eventObservers[eventType].delete(observer);
@@ -38,9 +45,9 @@ class EventDispatcher {
 
   dispatch(event) {
     if (event.type in this.eventObservers) {
-      this.eventObservers[event.type].forEach((observer) => {
-        observer.notify(event);
-      });
+      this.eventObservers[event.type].forEach(
+        observer => observer.notify(event)
+      )
     }
   }
 }

@@ -12,19 +12,17 @@
 
 class Arena {
 
-  constructor(tetris, width=10, height=20) {
-    this.context = tetris.context
-    this.width = width
-    this.height = height
-    this.startPosition = {x: width/2|0, y: 0}
-    this.grid = zeroMatrix(width, height)
+  constructor(data) {
+    this.data = data
+    this.grid = zeroMatrix(data.gridSize.width, data.gridSize.height)
   }
 
   draw() {
+    let {context, tileScale} = this.data
     this.grid.forEach((row, y) => {
       row.forEach((value, x) => {
         if (value) {
-          drawTile(this.context, x, y, pieceColours[value-1])
+          drawTile(context, x, y, tileScale, pieceColours[value-1])
         }
       })
     })
@@ -44,9 +42,10 @@ class Arena {
   }
 
   sweep() {
-    let newGrid = zeroMatrix(this.width, this.height)
+    let {width, height} = this.data.gridSize
+    let newGrid = zeroMatrix(width, height)
     let rowsCleared = 0
-    for (let i=this.height-1; i>=0; --i) {
+    for (let i=height-1; i>=0; --i) {
       if (this.grid[i].every(x => x > 0)) {
         rowsCleared++
         continue
@@ -63,6 +62,7 @@ class Arena {
 
     let collisionDetected = false
     let {pos, piece, size} = player
+    let {width, height} = this.data.gridSize
 
     for (let y = 0; y < size; ++y) {
       for (let x = 0; x < size; ++x) {
@@ -77,14 +77,14 @@ class Arena {
           }
 
           // collision with RHS wall
-          if (x + pos.x  >= this.width) {
+          if (x + pos.x  >= width) {
             collisionDetected = 1
             break
           }
 
           // or a collision with either the floor or another tile on the board
           if (y + pos.y >= 0 // tiles can be 'offscreen' so avoid bad indices
-              && (y + pos.y >= this.height
+              && (y + pos.y >= height
                   || this.grid[y + pos.y][x + pos.x])) {
             collisionDetected = true
             break

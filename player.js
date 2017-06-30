@@ -11,9 +11,9 @@
 
 class Player {
 
-  constructor(tetris) {
-    this.context = tetris.context
-    this.arena = tetris.arena
+  constructor(data) {
+    this.data = data
+    this.context = data.context
     this.reset()
   }
 
@@ -24,6 +24,7 @@ class Player {
           drawTile(this.context,
             this.pos.x + xOffset,
             this.pos.y + yOffset,
+            this.data.tileScale,
             pieceColours[value-1])
         }
       })
@@ -44,7 +45,7 @@ class Player {
         rotated[y][x] = orig[x][y]
       })
     })
-    rotated.forEach((row) => { row.reverse() })
+    rotated.forEach(row => row.reverse())
 
     this.piece = rotated
   }
@@ -61,12 +62,9 @@ class Player {
 
   reset() {
     this.chooseNewPiece()
-
-    let {x, y} = this.arena.startPosition
-
     this.setPosition({
-      x: x - this.size/2|0, // center horizontally
-      y: y - this.size      // start offscreen
+      x: (this.data.gridSize.width - this.size)/2|0, // center horizontally
+      y: -this.size                              // start offscreen
     })
   }
 }

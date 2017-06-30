@@ -9,8 +9,6 @@
   License: GPLv3
 */
 
-const canvas = document.getElementsByClassName('tetris')[0]
-
 const tetrominos = {
   'I': [[0, 1, 0, 0],
         [0, 1, 0, 0],
@@ -53,80 +51,82 @@ const pieceColours = [
   '#18B05B',
 ]
 
-const tileScale = 36
-
-const timeStep = 1000 // 1 second
-
-function zeroMatrix(width, height) {
-  return Array(height || width).fill().map(() => Array(width).fill(0))
-}
-
-function identityMatrix(width, height) {
-  return Array(height || width).fill().map(() => Array(width).fill(1))
-}
-
-function drawTile(context, x, y, colour) {
-  [x, y] = [x*tileScale, y*tileScale]
+function drawTile(context, x, y, scale, colour) {
+  [x, y] = [x*scale, y*scale]
   context.fillStyle = colour
-  context.fillRect(x, y, tileScale, tileScale)
+  context.fillRect(x, y, scale, scale)
   context.strokeStyle = 'white'
   context.lineWidth = 1
-  context.strokeRect(x, y, tileScale, tileScale)
+  context.strokeRect(x, y, scale, scale)
 }
 
-class Tetris extends EventDispatcher {
+class Tetris extends EventObserver {
 
-  constructor(canvas) {
+  constructor(data) {
 
     super()
 
-    this.canvas = canvas
-    this.canvas.width = tileScale * 10;
-    this.canvas.height = tileScale * 20;
-    this.context = canvas.getContext('2d')
-    this.arena = new Arena(this)
-    this.player = new Player(this)
-    this.audio = new SoundPlayer(this)
-    this.score = 0
-    this.highscore = 0
+    this.data = data
+    this.data.time.step = 1000
+    this.data.canvas.width  = this.data.gridSize.width * this.data.tileScale
+    this.data.canvas.height = this.data.gridSize.height * this.data.tileScale
 
-    document.addEventListener('keydown', (event) => {
+    this.arena = new Arena(data)
+    this.player = new Player(data)
+    this.audio = new SoundPlayer(data)
+
+    document.addEventListener('keydown', event => {
       if (event.altKey || event.ctrlKey || event.metaKey) return;
-      else if (event.keyCode === 38) this.rotatePlayer();
-      else if (event.keyCode === 37) this.movePlayer(-1);
-      else if (event.keyCode === 39) this.movePlayer(1);
-      else if (event.keyCode === 40) this.lowerPlayer();
-      else if (event.keyCode === 77) this.toggleMusic();
+      else if (event.keyCode === 38)
+        this.data.eventDispatcher.dispatch(new Event('tetris/player/rotate'));
+      else if (event.keyCode === 37)
+        this.data.eventDispatcher.dispatch(new Event('tetris/player/moveLeft'));
+      else if (event.keyCode === 39)
+        this.data.eventDispatcher.dispatch(new Event('tetris/player/moveRight'));
+      else if (event.keyCode === 40)
+        this.data.eventDispatcher.dispatch(new Event('tetris/player/moveDown'));
+      else if (event.keyCode === 77)
+        this.data.eventDispatcher.dispatch(new Event('tetris/sound/toggleMusic'));
+      else if (event.keyCode === 80)
+        this.data.eventDispatcher.dispatch(new Event('tetris/game/togglePause'));
     })
 
-    this.prevTime = 0
-    this.accumulatedTime = 0
-    this.update()
-  }
-
-  update(time = 0) {
-    let dt = time - this.prevTime
-    this.prevTime = time
-    this.accumulatedTime += dt;
-
-    if (this.accumulatedTime >= timeStep) {
-      this.lowerPlayer()
+    this.eventHandlers = {
+      'tetris/player/rotate': () => this.rotatePlayer(),
+      'tetris/player/moveLeft': () => this.movePlayer(-1),
+      'tetris/player/moveRight': () => this.movePlayer(1),
+      'tetris/player/moveDown': () => this.lowerPlayer(),
+      'tetris/game/togglePause': () => this.togglePause(),
     }
 
-    this.draw()
-    requestAnimationFrame((time) => {
-      this.update(time)
-    });
+    data.eventDispatcher.subscribeAll(this.eventHandlers, this)
+
+    data.eventDispatcher.dispatch(new Event('tetris/game/started'))
   }
 
-  clearCanvas() {
-    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
+  update(dt = 0) {
+    let time = this.data.time
+    time.accumulated += dt;
+    if (time.accumulated >= time.step) {
+      time.accumulated = 0
+      this.lowerPlayer()
+    }
   }
 
   draw() {
-    this.clearCanvas()
+    const {canvas, context} = this.data
+    context.clearRect(0, 0, canvas.width, canvas.height)
     this.player.draw()
     this.arena.draw()
+  }
+
+  loop(time = 0) {
+    this.update(time - this.data.time.prev)
+    this.draw()
+    this.data.time.prev = time
+
+    this.data.animationFrameId =
+      requestAnimationFrame(time => this.loop(time))
   }
 
   lowerPlayer() {
@@ -135,7 +135,7 @@ class Tetris extends EventDispatcher {
     let arena = this.arena
 
     // Reset Accumulator every time the piece is dropped
-    this.accumulatedTime = 0
+    this.data.time.accumulated = 0
 
     player.translate({x: 0, y: 1})
 
@@ -194,7 +194,7 @@ class Tetris extends EventDispatcher {
       }
     }
 
-    this.dispatch({type: 'tetris/playerRotated'});
+    this.data.eventDispatcher.dispatch(new Event('tetris/player/rotated'))
   }
 
   resetPlayer() {
@@ -206,36 +206,46 @@ class Tetris extends EventDispatcher {
     this.arena.reset()
   }
 
-  updateScore(linesCleared) {
-    if (linesCleared == 0) return;
-    let points = this.score + (linesCleared ? 10**linesCleared : 0)
+  updateScore(rowsCleared) {
+    if (rowsCleared == 0) return;
+    let points = this.data.score + (rowsCleared ? 10**rowsCleared : 0)
     this.setScore(points)
-    this.dispatch({
-      type: 'tetris/linesCleared', linesCleared: linesCleared
-    });
+    this.data.eventDispatcher.dispatch(
+      new Event('tetris/arena/rowsCleared', {rowsCleared: rowsCleared})
+    )
   }
 
   setScore(points) {
-    this.score = points
+    this.data.score = points
     document.getElementById('score').innerHTML =
-      `You have ${this.score} points` + (this.score > 100000 ? '!' : '.');
+      `You have ${this.data.score} points` +
+        (this.data.score > 100000 ? '!' : '.')
   }
 
   updateHighscore() {
-    if (this.score > this.highscore) {
-      this.setHighscore(this.score)
+    if (this.data.score > this.data.highscore) {
+      this.setHighscore(this.data.score)
     }
   }
 
   setHighscore(points) {
-    this.highscore = points
+    this.data.highscore = points
     document.getElementById('highscore').innerHTML =
-      `Highscore ${this.highscore} points.`;
+      `Highscore ${this.data.highscore} points.`
   }
 
-  toggleMusic() {
-    this.dispatch({type: 'tetris/toggleMusic'})
+  togglePause() {
+    this.data.paused = !this.data.paused
+    this.data.paused ? this.pauseGame() : this.unpauseGame()
+  }
+
+  pauseGame() {
+    cancelAnimationFrame(this.data.animationFrameId)
+    this.data.eventDispatcher.dispatch(new Event('tetris/game/paused'))
+  }
+
+  unpauseGame() {
+    this.loop(this.data.time.prev)
+    this.data.eventDispatcher.dispatch(new Event('tetris/game/unpaused'))
   }
 }
-
-let tetris = new Tetris(canvas) // object creation starts game
