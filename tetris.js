@@ -24,8 +24,6 @@ class Tetris extends EventObserver {
       },
       paused: false,
       bgMusicMuted: false,
-      score: 0,
-      highscore: 0
     }
 
     this.canvas = canvas
@@ -99,8 +97,13 @@ class Tetris extends EventObserver {
         arena.merge(player)
       }
 
-      this.updateScore(arena.sweep())
+      const rowsCleared = arena.sweep()
+      this.player.updateScore(rowsCleared)
       this.player.reset()
+      this.updateScore();
+      this.eventDispatcher.dispatch(
+        new Event('tetris/arena/rowsCleared', {rowsCleared: rowsCleared})
+      )
     }
   }
 
@@ -153,36 +156,19 @@ class Tetris extends EventObserver {
   }
 
   restartGame() {
-    this.setScore(0)
+    this.player.score = 0
     this.arena.reset()
   }
 
-  updateScore(rowsCleared) {
-    if (rowsCleared == 0) return;
-    let points = this.state.score + (rowsCleared ? 10**rowsCleared : 0)
-    this.setScore(points)
-    this.eventDispatcher.dispatch(
-      new Event('tetris/arena/rowsCleared', {rowsCleared: rowsCleared})
-    )
-  }
-
-  setScore(points) {
-    this.state.score = points
+  updateScore() {
     document.getElementById('score').innerHTML =
-      `You have ${this.state.score} points` +
-        (this.state.score > 100000 ? '!' : '.')
+      `You have ${this.player.score} points` +
+        (this.player.score > 100000 ? '!' : '.')
   }
 
   updateHighscore() {
-    if (this.state.score > this.state.highscore) {
-      this.setHighscore(this.state.score)
-    }
-  }
-
-  setHighscore(points) {
-    this.state.highscore = points
     document.getElementById('highscore').innerHTML =
-      `Highscore ${this.state.highscore} points.`
+      `Highscore ${this.player.highscore} points.`
   }
 
   togglePause() {

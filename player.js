@@ -13,6 +13,8 @@ class Player {
 
   constructor(game) {
     this.config = game.config
+    this.score = 0
+    this.highscore = 0
     this.graphics = game.graphics
     this.reset()
   }
@@ -50,10 +52,16 @@ class Player {
 
   reset() {
     this.chooseNewPiece()
-    // Start centered and offscreen
     this.pos = {
       x: (this.config.graphics.gridSize.width - this.size)/2|0,
       y: -this.size
     }
   }
+
+  updateScore(rowsCleared) {
+    if (rowsCleared == 0) return
+    this.score = this.score + (rowsCleared ? 10**rowsCleared : 0)
+    this.highscore = this.score > this.highscore ? this.score : this.highscore
+  }
+
 }
