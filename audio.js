@@ -13,7 +13,7 @@ class SoundPlayer extends EventObserver {
     super();
 
     this.config = game.config
-    this.state = game.state
+    this.muted = false
     this.bgMusic = new Audio()
     this.bgMusic.onended = () => this.playNextTrack()
 
@@ -51,7 +51,7 @@ class SoundPlayer extends EventObserver {
   }
 
   startMusic() {
-    if (!this.state.bgMusicMuted) this.bgMusic.play()
+    if (!this.muted) this.bgMusic.play()
   }
 
   stopMusic() {
@@ -59,7 +59,7 @@ class SoundPlayer extends EventObserver {
   }
 
   toggleMusic() {
-    (this.state.bgMusicMuted = !this.state.bgMusicMuted)
+    (this.muted = !this.muted)
     ? this.bgMusic.pause()
     : this.bgMusic.play()
   }

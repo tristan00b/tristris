@@ -16,15 +16,12 @@ class Tetris extends EventObserver {
     super()
 
     this.config = config
-    this.state = {
-      time: {
-        accumulated: 0,
-        prev: 0,
-        step: 1000,
-      },
-      paused: false,
-      bgMusicMuted: false,
+    this.time = {
+      accumulated: 0,
+      prev: 0,
+      step: 1000,
     }
+    this.paused = false
 
     this.canvas = canvas
     const {gridSize, tileScale} = config.graphics
@@ -53,7 +50,7 @@ class Tetris extends EventObserver {
   }
 
   update(dt = 0) {
-    let time = this.state.time
+    let time = this.time
     time.accumulated += dt;
     if (time.accumulated >= time.step) {
       time.accumulated = 0
@@ -68,11 +65,11 @@ class Tetris extends EventObserver {
   }
 
   loop(time = 0) {
-    this.update(time - this.state.time.prev)
+    this.update(time - this.time.prev)
     this.draw()
-    this.state.time.prev = time
+    this.time.prev = time
 
-    this.state.time.animationFrameId =
+    this.time.animationFrameId =
       requestAnimationFrame(time => this.loop(time))
   }
 
@@ -82,7 +79,7 @@ class Tetris extends EventObserver {
     let arena = this.arena
 
     // Reset Accumulator every time the piece is dropped
-    this.state.time.accumulated = 0
+    this.time.accumulated = 0
 
     player.translate({x: 0, y: 1})
 
@@ -172,17 +169,17 @@ class Tetris extends EventObserver {
   }
 
   togglePause() {
-    this.state.paused = !this.state.paused
-    this.state.paused ? this.pauseGame() : this.unpauseGame()
+    this.paused = !this.paused
+    this.paused ? this.pauseGame() : this.unpauseGame()
   }
 
   pauseGame() {
-    cancelAnimationFrame(this.state.time.animationFrameId)
+    cancelAnimationFrame(this.time.animationFrameId)
     this.eventDispatcher.dispatch(new Event('tetris/game/paused'))
   }
 
   unpauseGame() {
-    this.loop(this.state.time.prev)
+    this.loop(this.time.prev)
     this.eventDispatcher.dispatch(new Event('tetris/game/unpaused'))
   }
 }
