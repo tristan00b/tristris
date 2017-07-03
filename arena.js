@@ -13,6 +13,7 @@
 class Arena {
 
   constructor(game) {
+    this.game = game
     this.graphics = game.graphics
     this.gridSize = game.config.graphics.gridSize
     this.grid = zeroMatrix(
@@ -52,6 +53,13 @@ class Arena {
       })
     }
     this.grid = newGrid
+
+    if (rowsCleared) {
+      this.game.eventDispatcher.dispatch(
+        new Event('tetris/arena/rowsCleared', {rowsCleared: rowsCleared})
+      )
+    }
+
     return rowsCleared
   }
 

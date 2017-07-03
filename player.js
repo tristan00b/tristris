@@ -12,6 +12,7 @@
 class Player {
 
   constructor(game) {
+    this.game = game
     this.config = game.config
     this.score = 0
     this.highscore = 0
@@ -38,8 +39,9 @@ class Player {
       })
     })
     rotated.forEach(row => row.reverse())
-
     this.piece = rotated
+
+    this.game.eventDispatcher.dispatch(new Event('tetris/player/rotated'))
   }
 
   chooseNewPiece() {

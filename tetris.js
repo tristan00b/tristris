@@ -94,13 +94,9 @@ class Tetris extends EventObserver {
         arena.merge(player)
       }
 
-      const rowsCleared = arena.sweep()
-      this.player.updateScore(rowsCleared)
+      this.player.updateScore(arena.sweep())
       this.player.reset()
       this.updateScore();
-      this.eventDispatcher.dispatch(
-        new Event('tetris/arena/rowsCleared', {rowsCleared: rowsCleared})
-      )
     }
   }
 
@@ -144,8 +140,6 @@ class Tetris extends EventObserver {
         player.piece = orig
       }
     }
-
-    this.eventDispatcher.dispatch(new Event('tetris/player/rotated'))
   }
 
   resetPlayer() {
