@@ -12,20 +12,17 @@
 
 class Arena {
 
-  constructor(data) {
-    this.data = data
-    this.grid = zeroMatrix(data.gridSize.width, data.gridSize.height)
+  constructor(game) {
+    this.graphics = game.graphics
+    this.gridSize = game.config.graphics.gridSize
+    this.grid = zeroMatrix(
+      this.gridSize.width,
+      this.gridSize.height
+    )
   }
 
   draw() {
-    let {context, tileScale} = this.data
-    this.grid.forEach((row, y) => {
-      row.forEach((value, x) => {
-        if (value) {
-          drawTile(context, x, y, tileScale, pieceColours[value-1])
-        }
-      })
-    })
+    this.graphics.drawTiles(this.grid)
   }
 
   merge(player) {
@@ -42,7 +39,7 @@ class Arena {
   }
 
   sweep() {
-    let {width, height} = this.data.gridSize
+    let {width, height} = this.gridSize
     let newGrid = zeroMatrix(width, height)
     let rowsCleared = 0
     for (let i=height-1; i>=0; --i) {
@@ -62,7 +59,7 @@ class Arena {
 
     let collisionDetected = false
     let {pos, piece, size} = player
-    let {width, height} = this.data.gridSize
+    let {width, height} = this.gridSize
 
     for (let y = 0; y < size; ++y) {
       for (let x = 0; x < size; ++x) {

@@ -12,7 +12,8 @@ class EventObserver {
     // this.eventHandlers = {
     //   evenType<string>: eventHanlder<function>
     // }
-    this.eventHandlers[event.type](event);
+    if (event.type in this.eventHandlers)
+      this.eventHandlers[event.type](event)
   }
 }
 

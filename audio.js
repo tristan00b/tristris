@@ -8,43 +8,50 @@
 
 class SoundPlayer extends EventObserver {
 
-  constructor(data) {
+  constructor(game) {
 
     super();
 
-    this.data = data
-
-    this.sfx = [
-      new Audio(data.sound.sfxPath + '/ticktock.wav'), // on rotate
-      new Audio(data.sound.sfxPath + '/blip.wav')      // on lines cleared
-    ]
-
+    this.config = game.config
+    this.state = game.state
     this.bgMusic = new Audio()
     this.bgMusic.onended = () => this.playNextTrack()
 
     this.eventHandlers = {
-      'tetris/arena/rowsCleared': () => this.sfx[0].cloneNode().play(),
-      'tetris/player/rotated': () => this.sfx[1].cloneNode().play(),
       'tetris/game/started': () => this.playNextTrack(),
       'tetris/game/paused': () => this.stopMusic(),
       'tetris/game/unpaused': () => this.startMusic(),
       'tetris/sound/toggleMusic': () => this.toggleMusic(),
+      'tetris/sound/skipSong': () => this.playNextTrack(),
     }
 
-    data.eventDispatcher.subscribeAll(this.eventHandlers, this)
+    // Extend eventHandlers to include sound effects
+    let m = this.config.sound.eventEffectMap
+    Object.keys(m).forEach(event => {
+      const effect = new Audio(m[event]) // life extended by closure below
+      this.eventHandlers[event] = () => this.playSound(effect)
+    })
+
+    game.eventDispatcher.subscribeAll(this.eventHandlers, this)
+  }
+
+  playSound(sound) {
+    sound.cloneNode().play();
   }
 
   playNextTrack() {
     // Choose a random track to play, then play it
-    const trackNo = (Math.random()*this.data.sound.numTracks|0) + 1;
-    const file = String(trackNo).padStart(2, '0') + '.mp3';
-    console.log('playing: ' + file);
-    this.bgMusic.src = this.data.sound.musPath + '/' + file;
-    this.bgMusic.play();
+    const tracks = this.config.sound.tracks
+    const numTracks = tracks.length
+    const trackNo = Math.random()*numTracks | 0
+    const file = tracks[trackNo]
+    console.log('playing: ' + file)
+    this.bgMusic.src = file
+    this.bgMusic.play()
   }
 
   startMusic() {
-    this.bgMusic.play()
+    if (!this.state.bgMusicMuted) this.bgMusic.play()
   }
 
   stopMusic() {
@@ -52,7 +59,8 @@ class SoundPlayer extends EventObserver {
   }
 
   toggleMusic() {
-    (this.data.bgMusicMuted = !this.data.bgMusicMuted) ?
-      this.bgMusic.pause() : this.bgMusic.play()
+    (this.state.bgMusicMuted = !this.state.bgMusicMuted)
+    ? this.bgMusic.pause()
+    : this.bgMusic.play()
   }
 }

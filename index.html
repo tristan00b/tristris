@@ -28,10 +28,21 @@
 
     <script src="util.js"></script>
     <script src="event.js"></script>
+    <script src="input.js"></script>
     <script src="audio.js"></script>
+    <script src="graphics.js"></script>
     <script src="player.js"></script>
     <script src="arena.js"></script>
     <script src="tetris.js"></script>
-    <script src="game.js"></script>
+    <script>
+      (() => {
+        fetch('assets/data/config.json')
+        .then(response => response.json())
+        .then(config => {
+          const canvas = document.getElementsByClassName('tetris')[0]
+          new Tetris(canvas, config).loop()
+        })
+      })()
+    </script>
   </body>
 </html>

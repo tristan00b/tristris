@@ -11,24 +11,14 @@
 
 class Player {
 
-  constructor(data) {
-    this.data = data
-    this.context = data.context
+  constructor(game) {
+    this.config = game.config
+    this.graphics = game.graphics
     this.reset()
   }
 
   draw() {
-    this.piece.forEach((row, yOffset) => {
-      row.forEach((value, xOffset) => {
-        if (value) {
-          drawTile(this.context,
-            this.pos.x + xOffset,
-            this.pos.y + yOffset,
-            this.data.tileScale,
-            pieceColours[value-1])
-        }
-      })
-    })
+    this.graphics.drawTiles(this.piece, this.pos)
   }
 
   translate(amt) {
@@ -51,20 +41,19 @@ class Player {
   }
 
   chooseNewPiece() {
+    const tetrominos = this.config.graphics.tetrominos.shapes
+    const pieces = this.config.graphics.tetrominos.frequencies
     let l = pieces[Math.random()*pieces.length | 0]
     this.piece = tetrominos[l]
     this.size = this.piece.length
   }
 
-  setPosition(pos) {
-    this.pos = pos
-  }
-
   reset() {
     this.chooseNewPiece()
-    this.setPosition({
-      x: (this.data.gridSize.width - this.size)/2|0, // center horizontally
-      y: -this.size                              // start offscreen
-    })
+    // Start centered and offscreen
+    this.pos = {
+      x: (this.config.graphics.gridSize.width - this.size)/2|0,
+      y: -this.size
+    }
   }
 }
