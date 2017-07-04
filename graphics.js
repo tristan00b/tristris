@@ -1,28 +1,25 @@
 class Graphics {
 
   constructor(game) {
-    const graphics = game.config.graphics
-    this.canvas = game.canvas
-    this.context = game.context
-    this.gridSize = graphics.gridSize
-    this.scale = graphics.tileScale
-    this.colours = graphics.tetrominos.colours
+    this.scale = game.config.graphics.tileScale
+    this.colours = game.config.graphics.tetrominos.colours
   }
 
-  drawTile(x, y, scale, colour) {
+  drawTile(context, x, y, scale, colour) {
     [x, y] = [x*scale, y*scale]
-    this.context.fillStyle = colour
-    this.context.fillRect(x, y, scale, scale)
-    this.context.strokeStyle = 'white'
-    this.context.lineWidth = 1
-    this.context.strokeRect(x, y, scale, scale)
+    context.fillStyle = colour
+    context.fillRect(x, y, scale, scale)
+    context.strokeStyle = 'white'
+    context.lineWidth = 1
+    context.strokeRect(x, y, scale, scale)
   }
 
-  drawTiles(tiles, pos = {x: 0, y: 0}) {
+  drawTiles(context, tiles, pos = {x: 0, y: 0}) {
     tiles.forEach((row, yOffset) => {
       row.forEach((value, xOffset) => {
         if (value) {
           this.drawTile(
+            context,
             pos.x + xOffset,
             pos.y + yOffset,
             this.scale,

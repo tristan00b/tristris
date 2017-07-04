@@ -7,24 +7,29 @@
   </head>
   <body>
 
-      <header></header>
+    <header>TrisTris</header>
 
-      <main>
-        <div class="side-panel">
-        </div>
+    <main>
 
-        <div class="game-panel">
-          <canvas class="tetris"></canvas>
-        </div>
+      <div class="side-panel">
+        <span class="held-text">held</span>
+        <canvas class="held-canvas"></canvas>
+      </div>
 
-        <div class="side-panel">
-        </div>
-      </main>
+      <div class="game-panel">
+        <canvas class="main-canvas"></canvas>
+      </div>
 
-      <footer>
-        <span id="score">You have 0 points.</span>
-        <span id="highscore">Highscore 0 points.</span>
-      </footer>
+      <div class="side-panel">
+        <span class="next-text">next</span>
+        <canvas class="next-canvas"></canvas>
+      </div>
+    </main>
+
+    <footer>
+      <span id="score-text">You have 0 points.</span>
+      <span id="highscore-text">Highscore 0 points.</span>
+    </footer>
 
     <script src="util.js"></script>
     <script src="event.js"></script>
@@ -39,7 +44,11 @@
         fetch('assets/data/config.json')
         .then(response => response.json())
         .then(config => {
-          const canvas = document.getElementsByClassName('tetris')[0]
+          const canvas = {
+            'main': document.getElementsByClassName('main-canvas')[0],
+            'next':   document.getElementsByClassName('next-canvas')[0],
+            'held':   document.getElementsByClassName('held-canvas')[0],
+          }
           new Tetris(canvas, config).loop()
         })
       })()

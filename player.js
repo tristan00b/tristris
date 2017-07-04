@@ -12,26 +12,39 @@
 class Player {
 
   constructor(game) {
-    this.game = game
-    this.config = game.config
+    this.canvas = game.canvas
+    this.context = game.context
+    this.config = game.config.graphics
+    this.graphics = game.graphics
+    this.eventDispatcher = game.eventDispatcher
+
+    this.next = this.chooseNewPiece()
+    this.held = {
+      shape: '',
+      array: [],
+      pos: {x: 0, y: 0}
+    }
+
     this.score = 0
     this.highscore = 0
-    this.graphics = game.graphics
+
     this.reset()
   }
 
   draw() {
-    this.graphics.drawTiles(this.piece, this.pos)
+    this.graphics.drawTiles(this.context.main, this.curr.array, this.curr.pos)
+    this.graphics.drawTiles(this.context.next, this.next.array, this.next.pos)
+    this.graphics.drawTiles(this.context.held, this.held.array, this.held.pos)
   }
 
   translate(amt) {
-    this.pos.y += amt.y
-    this.pos.x += amt.x
+    this.curr.pos.y += amt.y
+    this.curr.pos.x += amt.x
   }
 
   rotate() {
-    let orig = this.piece
-    let rotated = zeroMatrix(this.size)
+    let orig = this.curr.array
+    let rotated = zeroMatrix(this.curr.array.length)
 
     orig.forEach((row, x) => {
       row.forEach((row, y) => {
@@ -39,25 +52,65 @@ class Player {
       })
     })
     rotated.forEach(row => row.reverse())
-    this.piece = rotated
+    this.curr.array = rotated
 
-    this.game.eventDispatcher.dispatch(new Event('tetris/player/rotated'))
+    this.eventDispatcher.dispatch(new Event('tetris/player/rotated'))
+  }
+
+  hold() {
+
+    let temp = this.held
+    this.held = this.newPiece(this.curr.shape)
+
+    if (temp.shape)
+    {
+      this.curr = temp
+      this.curr.pos = {
+        x: (this.config.grid.main.size.w - this.curr.array.length)/2|0,
+        y: -this.curr.array.length
+      }
+    }
+    else
+    {
+      this.reset()
+    }
+
+    this.next.pos = this.centerPosition(this.next, this.canvas.next)
+    this.held.pos = this.centerPosition(this.held, this.canvas.held)
+  }
+
+  newPiece(shape) {
+    return Object.assign(
+      {shape: shape, pos: {x: 0, y: 0}},
+      deepCopy(this.config.tetrominos.shapes[shape])
+    )
   }
 
   chooseNewPiece() {
-    const tetrominos = this.config.graphics.tetrominos.shapes
-    const pieces = this.config.graphics.tetrominos.frequencies
-    let l = pieces[Math.random()*pieces.length | 0]
-    this.piece = tetrominos[l]
-    this.size = this.piece.length
+    const freq = this.config.tetrominos.frequencies
+    const shape = freq[Math.random() * freq.length | 0]
+    return this.newPiece(shape)
   }
 
-  reset() {
-    this.chooseNewPiece()
-    this.pos = {
-      x: (this.config.graphics.gridSize.width - this.size)/2|0,
-      y: -this.size
+  centerPosition(piece, canvas) {
+    return {
+      x: canvas.width/(this.config.tileScale*2) - piece.center.x,
+      y: canvas.height/(this.config.tileScale*2) - piece.center.y
     }
+  }
+
+
+
+  reset() {
+    this.curr = this.next
+    this.next = this.chooseNewPiece()
+
+    this.curr.pos = {
+      x: (this.config.grid.main.size.w - this.curr.array.length)/2|0,
+      y: -this.curr.array.length
+    }
+
+    this.next.pos = this.centerPosition(this.next, this.canvas.next)
   }
 
   updateScore(rowsCleared) {

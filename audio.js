@@ -47,7 +47,15 @@ class SoundPlayer extends EventObserver {
     const file = tracks[trackNo]
     console.log('playing: ' + file)
     this.bgMusic.src = file
-    this.bgMusic.play()
+
+    if (this.muted)
+    {
+      this.bgMusic.pause()
+    }
+    else
+    {
+      this.bgMusic.play()
+    }
   }
 
   startMusic() {

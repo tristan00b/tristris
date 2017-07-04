@@ -24,21 +24,36 @@ class Tetris extends EventObserver {
     this.paused = false
 
     this.canvas = canvas
-    const {gridSize, tileScale} = config.graphics
-    this.canvas.width = gridSize.width * tileScale
-    this.canvas.height = gridSize.height * tileScale
-    this.context = canvas.getContext('2d')
+
+    let {grid: g, tileScale: scale} = config.graphics
+    this.canvas.main.width = g.main.size.w * scale
+    this.canvas.main.height = g.main.size.h * scale
+    this.canvas.next.width = g.auxiliary.size.w * scale
+    this.canvas.next.height = g.auxiliary.size.h * scale
+    this.canvas.held.width = g.auxiliary.size.w * scale
+    this.canvas.held.height = g.auxiliary.size.h * scale
+
+    this.context = {
+      main: canvas.main.getContext('2d'),
+      next: canvas.next.getContext('2d'),
+      held: canvas.held.getContext('2d'),
+    }
+
+    this.text = {
+      score: document.getElementById('score-text'),
+      highscore: document.getElementById('highscore-text')
+    }
 
     this.eventHandlers = {
-      'tetris/player/rotate': () => this.rotatePlayer(),
+      'tetris/player/hold': () => this.player.hold(),
+      'tetris/player/moveDown': () => this.lowerPlayer(),
       'tetris/player/moveLeft': () => this.movePlayer(-1),
       'tetris/player/moveRight': () => this.movePlayer(1),
-      'tetris/player/moveDown': () => this.lowerPlayer(),
+      'tetris/player/rotate': () => this.rotatePlayer(),
       'tetris/game/togglePause': () => this.togglePause(),
     }
 
     this.eventDispatcher = new EventDispatcher()
-    this.eventDispatcher.subscribeAll(this.eventHandlers, this)
 
     this.input = new Input(this)
     this.graphics = new Graphics(this)
@@ -46,6 +61,7 @@ class Tetris extends EventObserver {
     this.arena = new Arena(this)
     this.player = new Player(this)
 
+    this.eventDispatcher.subscribeAll(this.eventHandlers, this)
     this.eventDispatcher.dispatch(new Event('tetris/game/started'))
   }
 
@@ -59,7 +75,10 @@ class Tetris extends EventObserver {
   }
 
   draw() {
-    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
+    const {canvas: c, context: ctx} = this
+    ctx.main.clearRect(0, 0, c.main.width, c.main.height)
+    ctx.next.clearRect(0, 0, c.next.width, c.next.height)
+    ctx.held.clearRect(0, 0, c.held.width, c.held.height)
     this.player.draw()
     this.arena.draw()
   }
@@ -68,15 +87,12 @@ class Tetris extends EventObserver {
     this.update(time - this.time.prev)
     this.draw()
     this.time.prev = time
-
-    this.time.animationFrameId =
-      requestAnimationFrame(time => this.loop(time))
+    this.time.animationFrameId = requestAnimationFrame(time => this.loop(time))
   }
 
   lowerPlayer() {
 
-    let player = this.player
-    let arena = this.arena
+    let {arena, player} = this
 
     // Reset Accumulator every time the piece is dropped
     this.time.accumulated = 0
@@ -109,10 +125,9 @@ class Tetris extends EventObserver {
 
   rotatePlayer() {
 
-    let player = this.player
-    let arena = this.arena
+    let {arena, player} = this
 
-    let orig = player.piece
+    let orig = player.curr.array
     player.rotate()
 
     // A rotation next to a wall can result in collision. When this happens,
@@ -121,7 +136,7 @@ class Tetris extends EventObserver {
     // then retest for collision one step at at time. The number of required
     // checks is bounded by the size of the piece.
 
-    for(let i=0; i < player.size; ++i) {
+    for(let i=0; i < player.curr.array.length; ++i) {
       let dir = arena.checkForCollision(player)
 
       // LHS collision
@@ -137,7 +152,7 @@ class Tetris extends EventObserver {
       /// Bottom collision
       else if (dir === true) {
         // player.translate({x:0, y:-1})
-        player.piece = orig
+        player.curr.array = orig
       }
     }
   }
@@ -152,14 +167,12 @@ class Tetris extends EventObserver {
   }
 
   updateScore() {
-    document.getElementById('score').innerHTML =
-      `You have ${this.player.score} points` +
-        (this.player.score > 100000 ? '!' : '.')
+    this.text.score.innerHTML = `You have ${this.player.score} points` +
+      (this.player.score > 100000 ? '!' : '.')
   }
 
   updateHighscore() {
-    document.getElementById('highscore').innerHTML =
-      `Highscore ${this.player.highscore} points.`
+    this.text.highscore.innerHTML = `Highscore ${this.player.highscore} points.`
   }
 
   togglePause() {

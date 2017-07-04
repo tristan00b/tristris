@@ -13,3 +13,7 @@ function zeroMatrix(width, height) {
 function identityMatrix(width, height) {
   return Array(height || width).fill().map(() => Array(width).fill(1))
 }
+
+function deepCopy(obj) {
+  return JSON.parse(JSON.stringify(obj))
+}

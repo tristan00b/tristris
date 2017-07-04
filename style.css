@@ -1,8 +1,16 @@
 * {
   text-align: center;
   vertical-align: middle;
-  font-family: sans-serif;
+  font-family: eight-bit;
+  font-size: 1em;
   color: white;
+  margin: 0;
+  padding: 0;
+}
+
+@font-face {
+  font-family: eight-bit;
+  src: url(assets/fonts/8bit.ttf);
 }
 
 body {
@@ -21,10 +29,20 @@ main {
   justify-content: center;
 }
 
+#background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  /*height: 100%;*/
+  border: none;
+}
+
 .side-panel {
+  /*background: green;*/
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  /*justify-content: space-around;*/
   padding: 1em;
 }
 
@@ -32,7 +50,7 @@ canvas {
   border: 5px solid white;
 }
 
-@media screen and (min-width: 721px) {
+/*@media screen and (min-width: 721px) {
 
   main {
     flex-direction: row;
@@ -47,9 +65,9 @@ canvas {
     border-radius: 25px;
   }
 
-}
+}*/
 
-@media screen and (max-width: 720px) {
+/*@media screen and (max-width: 720px) {
 
   main {
     justify-content: space-around;
@@ -64,4 +82,4 @@ canvas {
     width: 50%;
   }
 
-}
+}*/

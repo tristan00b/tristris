@@ -13,49 +13,48 @@
 class Arena {
 
   constructor(game) {
-    this.game = game
+    this.context = game.context.main
     this.graphics = game.graphics
-    this.gridSize = game.config.graphics.gridSize
-    this.grid = zeroMatrix(
-      this.gridSize.width,
-      this.gridSize.height
-    )
+    this.eventDispatcher = game.eventDispatcher
+    let size = game.config.graphics.grid.main.size
+    this.grid = {
+      array: zeroMatrix(size.w, size.h),
+      size: size
+    }
   }
 
   draw() {
-    this.graphics.drawTiles(this.grid)
+    this.graphics.drawTiles(this.context, this.grid.array)
   }
 
   merge(player) {
-    let {pos, piece} = player
-    let {x: xOffset, y: yOffset} = pos
-
-    piece.forEach((row, y) => {
-      row.forEach((value, x) => {
+    let {pos, array} = player.curr
+    array.forEach((row, yOffset) => {
+      row.forEach((value, xOffset) => {
         if (value) {
-          this.grid[y + yOffset][x + xOffset] = value
+          this.grid.array[pos.y + yOffset][pos.x + xOffset] = value
         }
       })
     })
   }
 
   sweep() {
-    let {width, height} = this.gridSize
-    let newGrid = zeroMatrix(width, height)
+    let {size: {w, h}, array: oldGrid} = this.grid
+    let newGrid = zeroMatrix(w, h)
     let rowsCleared = 0
-    for (let i=height-1; i>=0; --i) {
-      if (this.grid[i].every(x => x > 0)) {
+    for (let i=h-1; i>=0; --i) {
+      if (oldGrid[i].every(x => x > 0)) {
         rowsCleared++
         continue
       }
-      this.grid[i].forEach((value, j) => {
-        newGrid[i+rowsCleared][j] = this.grid[i][j]
+      oldGrid[i].forEach((value, j) => {
+        newGrid[i+rowsCleared][j] = oldGrid[i][j]
       })
     }
-    this.grid = newGrid
+    this.grid.array = newGrid
 
     if (rowsCleared) {
-      this.game.eventDispatcher.dispatch(
+      this.eventDispatcher.dispatch(
         new Event('tetris/arena/rowsCleared', {rowsCleared: rowsCleared})
       )
     }
@@ -66,14 +65,15 @@ class Arena {
   checkForCollision(player) {
 
     let collisionDetected = false
-    let {pos, piece, size} = player
-    let {width, height} = this.gridSize
+    let {pos, array} = player.curr
+    let {size: {w, h}, array: grid} = this.grid
 
-    for (let y = 0; y < size; ++y) {
-      for (let x = 0; x < size; ++x) {
+    // debugger
+    for (let y = 0; y < array.length; ++y) {
+      for (let x = 0; x < array.length; ++x) {
 
         // nothing to do if a tile is empty so check this first
-        if (piece[y][x]) {
+        if (array[y][x]) {
 
           // collision with LHS wall
           if (x + pos.x < 0) {
@@ -82,15 +82,15 @@ class Arena {
           }
 
           // collision with RHS wall
-          if (x + pos.x  >= width) {
+          if (x + pos.x  >= w) {
             collisionDetected = 1
             break
           }
 
           // or a collision with either the floor or another tile on the board
           if (y + pos.y >= 0 // tiles can be 'offscreen' so avoid bad indices
-              && (y + pos.y >= height
-                  || this.grid[y + pos.y][x + pos.x])) {
+              && (y + pos.y >= h
+                  || grid[y + pos.y][x + pos.x])) {
             collisionDetected = true
             break
           }
@@ -103,15 +103,15 @@ class Arena {
   overflows(player) {
     // Return true if any non-empty tile of the player piece is above the top
     // of the arena grid. Only the first line above the top needs to be checked.
-    let y = player.pos.y
-    let firstLineOver = player.size - (player.size+y) - 1 // assumes negative y
-    return (y < 0 && player.piece[firstLineOver].some(x => x > 0))
+    const {array, pos} = player.curr
+    let firstLineOver = array.length - (array.length+pos.y) - 1 // assumes negative y
+    return (pos.y < 0 && array[firstLineOver].some(x => x > 0))
   }
 
   reset() {
-    this.grid.forEach((row, y) => {
+    this.grid.array.forEach((row, y) => {
       row.forEach((value, x) => {
-        this.grid[y][x] = 0
+        this.grid.array[y][x] = 0
       })
     })
   }
