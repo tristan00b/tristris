@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "webpack-dev-server",
-    "prod": "npm run clean && webpack -p --env.production",
+    "prod": "npm run clean && NODE_ENV=production webpack -p",
     "clean": "rimraf ./dist/*"
   },
   "author": "J. Tristan Bayfield",
@@ -26,6 +26,7 @@
     "html-webpack-plugin": "^2.29.0",
     "json-loader": "^0.5.4",
     "node-sass": "^4.5.3",
+    "raw-loader": "^0.5.1",
     "rimraf": "^2.6.1",
     "sass-loader": "^6.0.6",
     "style-loader": "^0.18.2",
