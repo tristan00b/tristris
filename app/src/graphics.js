@@ -1,4 +1,4 @@
-class Graphics {
+export default class Graphics {
 
   constructor(game) {
     this.scale = game.config.graphics.tileScale

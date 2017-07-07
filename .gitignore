@@ -1,3 +1,8 @@
-
-# exclude binary objects
+# binaries
 assets/
+
+# node
+node_modules/
+
+# webpack
+dist/

@@ -1,6 +1,6 @@
 
 
-class Input {
+export default class Input {
 
   constructor(game) {
     this.game = game

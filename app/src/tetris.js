@@ -9,7 +9,14 @@
   License: GPLv3
 */
 
-class Tetris extends EventObserver {
+import {EventObserver, EventDispatcher} from './event.js'
+import Input from './input.js'
+import Graphics from './graphics.js'
+import SoundPlayer from './audio.js'
+import Arena from './arena.js'
+import Player from './player.js'
+
+export default class Tetris extends EventObserver {
 
   constructor(canvas, config) {
 

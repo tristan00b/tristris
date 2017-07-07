@@ -6,11 +6,13 @@
   License: GPLv3
 */
 
-class SoundPlayer extends EventObserver {
+import {EventObserver} from './event.js'
+
+export default class SoundPlayer extends EventObserver {
 
   constructor(game) {
 
-    super();
+    super()
 
     this.config = game.config
     this.muted = false

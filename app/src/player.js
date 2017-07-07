@@ -9,7 +9,9 @@
   License: GPLv3
 */
 
-class Player {
+import {deepCopy, zeroMatrix} from './util.js'
+
+export default class Player {
 
   constructor(game) {
     this.canvas = game.canvas

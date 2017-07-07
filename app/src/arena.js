@@ -10,7 +10,9 @@
   License: GPLv3
 */
 
-class Arena {
+import {zeroMatrix} from './util.js'
+
+export default class Arena {
 
   constructor(game) {
     this.context = game.context.main

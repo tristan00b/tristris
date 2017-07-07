@@ -6,7 +6,7 @@
   License: GPLv3
 */
 
-class EventObserver {
+export class EventObserver {
   notify(event) {
     // Subclass must provide a dict of event handlers in the form:
     // this.eventHandlers = {
@@ -17,7 +17,7 @@ class EventObserver {
   }
 }
 
-class EventDispatcher {
+export class EventDispatcher {
 
   constructor() {
     this.eventObservers = {};
