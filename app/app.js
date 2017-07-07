@@ -1,4 +1,4 @@
-import './app.scss'
+import './app.sass'
 import 'babel-polyfill'
 import Tetris from './src/tetris.js'
 import config from './assets/data/config.json'

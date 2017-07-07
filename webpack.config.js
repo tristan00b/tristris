@@ -34,7 +34,7 @@ module.exports = (env) => {
     module: {
       rules: [
         {
-          test: /\.scss$/,
+          test: /\.sass$/,
           use: cssConfig
         },
         {
