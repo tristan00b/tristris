@@ -51,7 +51,7 @@ module.exports = {
         use: 'json-loader'
       },
       {
-        test: /\.tff$/,
+        test: /\.ttf$/,
         use: 'url-loader'
       },
     ]
