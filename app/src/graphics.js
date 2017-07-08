@@ -1,3 +1,11 @@
+/*
+  graphics.js
+
+  Author:  J. Tristan Bayfield
+  Created: June 27, 2017
+  License: GPLv3
+*/
+
 export default class Graphics {
 
   constructor(game) {
