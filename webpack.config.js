@@ -2,7 +2,13 @@ const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const GitRevisionPlugin = require('git-revision-webpack-plugin');
 const webpack = require('webpack');
+
+const gitRevisionPlugin = new GitRevisionPlugin({
+  versionCommand: 'describe --tags',
+  commithashCommand: 'rev-list --max-count=1 --abbrev-commit HEAD'
+});
 
 const buildingForProduction =
   !!(process.env.NODE_ENV && process.env.NODE_ENV === 'production');
@@ -27,7 +33,7 @@ module.exports = {
     app: ['babel-polyfill', './app.js']
   },
   output: {
-    filename: '[name].bundle.js',
+    filename: '[name].bundle.[hash].js',
     path: path.resolve(__dirname, 'dist'),
     pathinfo: !buildingForProduction
   },
@@ -79,6 +85,8 @@ module.exports = {
     new webpack.HotModuleReplacementPlugin(),
     new webpack.DefinePlugin({
     	'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+      'process.env.VERSION': JSON.stringify(gitRevisionPlugin.version()),
+      'process.env.COMMITHASH': JSON.stringify(gitRevisionPlugin.commithash()),
     }),
   ]
 };

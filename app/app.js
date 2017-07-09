@@ -8,6 +8,9 @@ config.debug = process.env.NODE_ENV !== 'production'
 // enable hot reloading during development
 if (config.debug) require('./index.html')
 
+// display version
+document.getElementById('app-version').innerHTML = process.env.VERSION;
+
 const canvas = {
   'main': document.getElementsByClassName('main-canvas')[0],
   'next':   document.getElementsByClassName('next-canvas')[0],
