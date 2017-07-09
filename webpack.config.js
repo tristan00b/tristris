@@ -29,7 +29,7 @@ module.exports = {
   output: {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist'),
-    pathinfo: true
+    pathinfo: !buildingForProduction
   },
   module: {
     rules: [
@@ -65,7 +65,10 @@ module.exports = {
       title: 'TrisTris',
       template: './index.html',
       filename: 'index.html',
-      minify: { collapseWhitespace: buildingForProduction },
+      minify: {
+        collapseWhitespace: buildingForProduction,
+        removeComments: buildingForProduction,
+      },
       hash: true,
     }),
     new ExtractTextPlugin({
