@@ -51,15 +51,6 @@ export default class Tetris extends EventObserver {
       highscore: document.getElementById('highscore-text')
     }
 
-    this.eventHandlers = {
-      'tetris/player/hold': () => this.player.hold(),
-      'tetris/player/moveDown': () => this.lowerPlayer(),
-      'tetris/player/moveLeft': () => this.movePlayer(-1),
-      'tetris/player/moveRight': () => this.movePlayer(1),
-      'tetris/player/rotate': () => this.rotatePlayer(),
-      'tetris/game/togglePause': () => this.togglePause(),
-    }
-
     this.eventDispatcher = new EventDispatcher()
 
     this.input = new Input(this)
@@ -68,7 +59,14 @@ export default class Tetris extends EventObserver {
     this.arena = new Arena(this)
     this.player = new Player(this)
 
-    this.eventDispatcher.subscribeAll(this.eventHandlers, this)
+    this.addHandler('tetris/player/hold', () => this.player.hold())
+    this.addHandler('tetris/player/moveDown', () => this.lowerPlayer())
+    this.addHandler('tetris/player/moveLeft', () => this.movePlayer(-1))
+    this.addHandler('tetris/player/moveRight', () => this.movePlayer(1))
+    this.addHandler('tetris/player/rotate', () => this.rotatePlayer())
+    this.addHandler('tetris/game/togglePause', () => this.togglePause())
+    this.subscribe(this.eventDispatcher)
+
     this.eventDispatcher.dispatch(new Event('tetris/game/started'))
   }
 

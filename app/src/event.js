@@ -1,5 +1,5 @@
 /*
-  observer.js
+  event.js
 
   Author:  J. Tristan Bayfield
   Created: June 27, 2017
@@ -7,46 +7,54 @@
 */
 
 export class EventObserver {
+
+  constructor () {
+    this.handlers = {}
+  }
+
+  addHandler(eventType, handler) {
+    this.handlers[eventType] = handler
+  }
+
   notify(event) {
-    // Subclass must provide a dict of event handlers in the form:
-    // this.eventHandlers = {
-    //   evenType<string>: eventHanlder<function>
-    // }
-    if (event.type in this.eventHandlers)
-      this.eventHandlers[event.type](event)
+    if (event.type in this.handlers) {
+      this.handlers[event.type](event)
+    }
+  }
+
+  subscribe(dispatcher) {
+    dispatcher.subscribeAll(Object.keys(this.handlers), this)
   }
 }
 
 export class EventDispatcher {
 
   constructor() {
-    this.eventObservers = {};
+    this.observers = {}
   }
 
   subscribe(eventType, observer) {
-    let eventObservers = this.eventObservers;
-    if (eventType in eventObservers) {
-      eventObservers[eventType].add(observer);
+    if (eventType in this.observers) {
+      this.observers[eventType].add(observer)
     } else {
-      eventObservers[eventType] = new Set([observer]);
+      this.observers[eventType] = new Set([observer])
     }
   }
 
   subscribeAll(events, observer) {
-    for (let event in events) {
-      this.subscribe(event, observer);
-    }
+    events.forEach(event => this.subscribe(event, observer)
+    )
   }
 
   unsubscribe(eventType, observer) {
-    if (eventType in this.eventObservers) {
-      this.eventObservers[eventType].delete(observer);
+    if (eventType in this.observers) {
+      this.observers[eventType].delete(observer)
     }
   }
 
   dispatch(event) {
-    if (event.type in this.eventObservers) {
-      this.eventObservers[event.type].forEach(
+    if (event.type in this.observers) {
+      this.observers[event.type].forEach(
         observer => observer.notify(event)
       )
     }
