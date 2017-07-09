@@ -88,5 +88,6 @@ module.exports = {
       'process.env.VERSION': JSON.stringify(gitRevisionPlugin.version()),
       'process.env.COMMITHASH': JSON.stringify(gitRevisionPlugin.commithash()),
     }),
-  ]
+  ],
+  stats: 'errors-only'
 };
