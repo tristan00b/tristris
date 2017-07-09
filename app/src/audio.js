@@ -15,7 +15,7 @@ export default class SoundPlayer extends EventObserver {
     super()
 
     this.config = game.config
-    this.muted = false
+    this.muted = game.config.debug === true
     this.bgMusic = new Audio()
     this.bgMusic.onended = () => this.playNextTrack()
 
