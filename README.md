@@ -1,4 +1,4 @@
-![](./app/assets/art/tristris-logo.png)
+![](./app/assets/img/tristris-logo.png)
 
 [Play now!](https://tribayf.github.io/tristris)
 
