@@ -53,6 +53,7 @@ export default class Arena {
         newGrid[i+rowsCleared][j] = oldGrid[i][j]
       })
     }
+
     this.grid.array = newGrid
 
     if (rowsCleared) {
@@ -99,6 +100,7 @@ export default class Arena {
         }
       }
     }
+
     return collisionDetected
   }
 
@@ -117,4 +119,5 @@ export default class Arena {
       })
     })
   }
+  
 }

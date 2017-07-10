@@ -53,6 +53,7 @@ export default class Player {
         rotated[y][x] = orig[x][y]
       })
     })
+
     rotated.forEach(row => row.reverse())
     this.curr.array = rotated
 
@@ -64,16 +65,13 @@ export default class Player {
     let temp = this.held
     this.held = this.newPiece(this.curr.shape)
 
-    if (temp.shape)
-    {
+    if (temp.shape) {
       this.curr = temp
       this.curr.pos = {
         x: (this.config.grid.main.size.w - this.curr.array.length)/2|0,
         y: -this.curr.array.length
       }
-    }
-    else
-    {
+    } else {
       this.reset()
     }
 
@@ -100,8 +98,6 @@ export default class Player {
       y: canvas.height/(this.config.tileScale*2) - piece.center.y
     }
   }
-
-
 
   reset() {
     this.curr = this.next

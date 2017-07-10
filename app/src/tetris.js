@@ -30,15 +30,14 @@ export default class Tetris extends EventObserver {
     }
     this.paused = false
 
-    this.canvas = canvas
-
     let {grid: g, tileScale: scale} = config.graphics
-    this.canvas.main.width = g.main.size.w * scale
-    this.canvas.main.height = g.main.size.h * scale
-    this.canvas.next.width = g.auxiliary.size.w * scale
-    this.canvas.next.height = g.auxiliary.size.h * scale
-    this.canvas.held.width = g.auxiliary.size.w * scale
-    this.canvas.held.height = g.auxiliary.size.h * scale
+    canvas.main.width = g.main.size.w * scale
+    canvas.main.height = g.main.size.h * scale
+    canvas.next.width = g.auxiliary.size.w * scale
+    canvas.next.height = g.auxiliary.size.h * scale
+    canvas.held.width = g.auxiliary.size.w * scale
+    canvas.held.height = g.auxiliary.size.h * scale
+    this.canvas = canvas
 
     this.context = {
       main: canvas.main.getContext('2d'),
@@ -149,12 +148,12 @@ export default class Tetris extends EventObserver {
         player.translate({x:1, y:0})
       }
 
-      /// RHS collision
+      // RHS collision
       else if (dir === 1) {
         player.translate({x:-1, y:0})
       }
 
-      /// Bottom collision
+      // Bottom collision
       else if (dir === true) {
         // player.translate({x:0, y:-1})
         player.curr.array = orig
@@ -194,4 +193,5 @@ export default class Tetris extends EventObserver {
     this.loop(this.time.prev)
     this.eventDispatcher.dispatch(new Event('tetris/game/unpaused'))
   }
+  
 }

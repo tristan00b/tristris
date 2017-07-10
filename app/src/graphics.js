@@ -26,12 +26,8 @@ export default class Graphics {
     tiles.forEach((row, yOffset) => {
       row.forEach((value, xOffset) => {
         if (value) {
-          this.drawTile(
-            context,
-            pos.x + xOffset,
-            pos.y + yOffset,
-            this.scale,
-            this.colours[value-1])
+          this.drawTile(context, pos.x + xOffset, pos.y + yOffset,
+            this.scale, this.colours[value-1])
         }
       })
     })

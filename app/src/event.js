@@ -25,6 +25,7 @@ export class EventObserver {
   subscribe(dispatcher) {
     dispatcher.subscribeAll(Object.keys(this.handlers), this)
   }
+
 }
 
 export class EventDispatcher {
@@ -59,4 +60,5 @@ export class EventDispatcher {
       )
     }
   }
+
 }

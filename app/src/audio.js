@@ -46,14 +46,7 @@ export default class SoundPlayer extends EventObserver {
     console.log('playing: ' + file)
     this.bgMusic.src = file
 
-    if (this.muted)
-    {
-      this.bgMusic.pause()
-    }
-    else
-    {
-      this.bgMusic.play()
-    }
+    this.muted ? this.bgMusic.pause() : this.bgMusic.play()
   }
 
   startMusic() {
@@ -69,4 +62,5 @@ export default class SoundPlayer extends EventObserver {
     ? this.bgMusic.pause()
     : this.bgMusic.play()
   }
+
 }
