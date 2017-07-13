@@ -29,6 +29,7 @@ module.exports = {
     hot: true,
     inline: true
   },
+  devtool: buildingForProduction ? false : 'source-map',
   entry: {
     app: ['babel-polyfill', './app.js']
   },
@@ -88,6 +89,7 @@ module.exports = {
       'process.env.VERSION': JSON.stringify(gitRevisionPlugin.version()),
       'process.env.COMMITHASH': JSON.stringify(gitRevisionPlugin.commithash()),
     }),
+    // new webpack.SourceMapDevToolPlugin()
   ],
   stats: 'errors-only'
 };
