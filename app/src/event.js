@@ -22,7 +22,7 @@ export class EventObserver {
     }
   }
 
-  subscribe(dispatcher) {
+  registerHandlers(dispatcher) {
     dispatcher.subscribeAll(Object.keys(this.handlers), this)
   }
 

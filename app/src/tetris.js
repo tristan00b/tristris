@@ -10,25 +10,17 @@
 */
 
 import {EventObserver, EventDispatcher} from './event.js'
-import Input from './input.js'
+import InputHandler from './input.js'
 import Graphics from './graphics.js'
 import SoundPlayer from './audio.js'
 import Arena from './arena.js'
 import Player from './player.js'
 
-export default class Tetris extends EventObserver {
+export default class Tetris {
 
   constructor(canvas, config) {
 
-    super()
-
     this.config = config
-    this.time = {
-      accumulated: 0,
-      prev: 0,
-      step: 1000,
-    }
-    this.paused = false
 
     let {grid: g, tileScale: scale} = config.graphics
     canvas.main.width = g.main.size.w * scale
@@ -50,32 +42,30 @@ export default class Tetris extends EventObserver {
       highscore: document.getElementById('highscore-text')
     }
 
-    this.eventDispatcher = new EventDispatcher()
+    this.dispatcher = new EventDispatcher()
+    this.observer = new EventObserver()
+    this.observer.addHandler('tetris/game/togglePause', () => this.togglePause())
+    this.observer.addHandler('tetris/arena/overflows', () => this.restartGame())
+    this.observer.registerHandlers(this.dispatcher)
 
-    this.input = new Input(this)
+    this.input = new InputHandler(this)
     this.graphics = new Graphics(this)
     this.audio = new SoundPlayer(this)
     this.arena = new Arena(this)
     this.player = new Player(this)
 
-    this.addHandler('tetris/player/hold', () => this.player.hold())
-    this.addHandler('tetris/player/moveDown', () => this.lowerPlayer())
-    this.addHandler('tetris/player/moveLeft', () => this.movePlayer(-1))
-    this.addHandler('tetris/player/moveRight', () => this.movePlayer(1))
-    this.addHandler('tetris/player/rotate', () => this.rotatePlayer())
-    this.addHandler('tetris/game/togglePause', () => this.togglePause())
-    this.subscribe(this.eventDispatcher)
+    this.paused = false
+    this.prevTime = 0
+    this.state = 'running'
 
-    this.eventDispatcher.dispatch(new Event('tetris/game/started'))
+    this.dispatcher.dispatch(new Event('tetris/game/started'))
   }
 
   update(dt = 0) {
-    let time = this.time
-    time.accumulated += dt;
-    if (time.accumulated >= time.step) {
-      time.accumulated = 0
-      this.lowerPlayer()
-    }
+    this.input.update()
+    this.player.update(dt)
+    this.arena.update()
+    this.updateScore()
   }
 
   draw() {
@@ -88,86 +78,30 @@ export default class Tetris extends EventObserver {
   }
 
   loop(time = 0) {
-    this.update(time - this.time.prev)
+    this.update(time - this.prevTime)
     this.draw()
-    this.time.prev = time
-    this.time.animationFrameId = requestAnimationFrame(time => this.loop(time))
+    this.prevTime = time
+    this.animationFrameId = requestAnimationFrame(time => this.loop(time))
   }
 
-  lowerPlayer() {
-
-    let {arena, player} = this
-
-    // Reset Accumulator every time the piece is dropped
-    this.time.accumulated = 0
-
-    player.translate({x: 0, y: 1})
-
-    if (arena.checkForCollision(player)) {
-
-      player.translate({x: 0, y: -1})
-
-      if (arena.overflows(player)) {
-        this.updateHighscore()
-        this.restartGame()
-      } else {
-        arena.merge(player)
-      }
-
-      this.player.updateScore(arena.sweep())
-      this.player.reset()
-      this.updateScore();
-    }
+  pauseGame() {
+    cancelAnimationFrame(this.animationFrameId)
+    this.dispatcher.dispatch(new Event('tetris/game/paused'))
   }
 
-  movePlayer(dx) {
-    this.player.translate({x: dx, y:0})
-    if (this.arena.checkForCollision(this.player)) {
-      this.player.translate({x: -dx, y:0})
-    }
+  unpauseGame() {
+    this.loop(this.prevTime)
+    this.dispatcher.dispatch(new Event('tetris/game/unpaused'))
   }
 
-  rotatePlayer() {
-
-    let {arena, player} = this
-
-    let orig = player.curr.array
-    player.rotate()
-
-    // A rotation next to a wall can result in collision. When this happens,
-    // we'll translate left or right to move the piece out of the way. As we do
-    // not know my how much the piece extends pass the wall, we move the piece
-    // then retest for collision one step at at time. The number of required
-    // checks is bounded by the size of the piece.
-
-    for(let i=0; i < player.curr.array.length; ++i) {
-      let dir = arena.checkForCollision(player)
-
-      // LHS collision
-      if (dir === -1) {
-        player.translate({x:1, y:0})
-      }
-
-      // RHS collision
-      else if (dir === 1) {
-        player.translate({x:-1, y:0})
-      }
-
-      // Bottom collision
-      else if (dir === true) {
-        // player.translate({x:0, y:-1})
-        player.curr.array = orig
-      }
-    }
-  }
-
-  resetPlayer() {
-    this.player.reset()
+  togglePause() {
+    this.paused = !this.paused
+    this.paused ? this.pauseGame() : this.unpauseGame()
   }
 
   restartGame() {
-    this.player.score = 0
-    this.arena.reset()
+    this.updateHighscore()
+    this.dispatcher.dispatch(new Event('tetris/game/restarted'))
   }
 
   updateScore() {
@@ -178,20 +112,4 @@ export default class Tetris extends EventObserver {
   updateHighscore() {
     this.text.highscore.innerHTML = `Highscore ${this.player.highscore} points.`
   }
-
-  togglePause() {
-    this.paused = !this.paused
-    this.paused ? this.pauseGame() : this.unpauseGame()
-  }
-
-  pauseGame() {
-    cancelAnimationFrame(this.time.animationFrameId)
-    this.eventDispatcher.dispatch(new Event('tetris/game/paused'))
-  }
-
-  unpauseGame() {
-    this.loop(this.time.prev)
-    this.eventDispatcher.dispatch(new Event('tetris/game/unpaused'))
-  }
-  
 }

@@ -6,25 +6,44 @@
   License: GPLv3
 */
 
-export default class Input {
+import {EventDispatcher, EventObserver} from './event.js'
 
-  constructor(game) {
-    this.game = game
-    this.keyCodeEventMap = game.config.input.keyCodeEventMap
+export class Input {
+
+  constructor() {
     document.addEventListener('keydown', event => {
-      this.handleInput(event)
+      this.handleKeyDown(event)
+    })
+    document.addEventListener('keyup', event => {
+      this.handleKeyUp(event)
     })
   }
 
-  handleInput(event) {
-    if (event.altKey || event.ctrKey || event.metaKey) {
-      return
+  handleKeyDown(event) { /* override in subclass */ }
+
+  handleKeyUp(event)  { /* override in subclass */ }
+
+}
+
+export default class InputHandler extends Input {
+
+  constructor(game) {
+    super()
+    this.game = game
+    this.dispatcher = game.dispatcher
+    this.contexts = game.config.input.contexts
+    this.keyCodeEventMap = game.config.input.keyCodeEventMap
+  }
+
+  handleKeyDown(event) {
+    if (event.keyCode in this.context) {
+      this.dispatcher.dispatch(new Event(this.context[event.keyCode]))
     }
-    else if (event.keyCode in this.keyCodeEventMap) {
-      this.game.eventDispatcher.dispatch(
-        new Event(this.keyCodeEventMap[event.keyCode])
-      )
-    }
+  }
+
+  update() {
+    // Use current game state to determine the inputs available to player
+    this.context = this.contexts[this.game.state]
   }
 
 }

@@ -10,19 +10,30 @@
   License: GPLv3
 */
 
+import {EventObserver} from './event.js'
 import {zeroMatrix} from './util.js'
 
 export default class Arena {
 
   constructor(game) {
+
     this.context = game.context.main
     this.graphics = game.graphics
-    this.eventDispatcher = game.eventDispatcher
+
     let size = game.config.graphics.grid.main.size
     this.grid = {
       array: zeroMatrix(size.w, size.h),
       size: size
     }
+
+    this.dispatcher = game.dispatcher
+    this.observer = new EventObserver()
+    this.observer.addHandler('tetris/game/restarted', () => this.restart())
+    this.observer.registerHandlers(this.dispatcher)
+  }
+
+  update() {
+    this.sweep()
   }
 
   draw() {
@@ -30,6 +41,12 @@ export default class Arena {
   }
 
   merge(player) {
+
+    if (this.overflows(player)) {
+      this.dispatcher.dispatch(new Event('tetris/arena/overflows'))
+      return
+    }
+
     let {pos, array} = player.curr
     array.forEach((row, yOffset) => {
       row.forEach((value, xOffset) => {
@@ -57,12 +74,11 @@ export default class Arena {
     this.grid.array = newGrid
 
     if (rowsCleared) {
-      this.eventDispatcher.dispatch(
-        new Event('tetris/arena/rowsCleared', {rowsCleared: rowsCleared})
-      )
+      this.dispatcher.dispatch(Object.assign(
+        new Event('tetris/arena/rowsCleared'),
+        {rowsCleared: rowsCleared}
+      ))
     }
-
-    return rowsCleared
   }
 
   checkForCollision(player) {
@@ -71,7 +87,6 @@ export default class Arena {
     let {pos, array} = player.curr
     let {size: {w, h}, array: grid} = this.grid
 
-    // debugger
     for (let y = 0; y < array.length; ++y) {
       for (let x = 0; x < array.length; ++x) {
 
@@ -112,12 +127,12 @@ export default class Arena {
     return (pos.y < 0 && array[firstLineOver].some(x => x > 0))
   }
 
-  reset() {
+  restart() {
     this.grid.array.forEach((row, y) => {
       row.forEach((value, x) => {
         this.grid.array[y][x] = 0
       })
     })
   }
-  
+
 }
