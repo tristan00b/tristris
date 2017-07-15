@@ -39,7 +39,8 @@ export default class Tetris {
 
     this.text = {
       score: document.getElementById('score-text'),
-      highscore: document.getElementById('highscore-text')
+      highscore: document.getElementById('highscore-text'),
+      frameRate: document.getElementById('frame-rate')
     }
 
     this.dispatcher = new EventDispatcher()
@@ -55,10 +56,28 @@ export default class Tetris {
     this.player = new Player(this)
 
     this.paused = false
-    this.prevTime = 0
     this.state = 'running'
 
+    this.frame =  {
+      id: null,
+      count: 0,
+      rate: 0,
+      maxRate: 60,
+      nextRateUpdate: 0,
+    }
+
+    this.time = {
+      prev: 0,
+      delta: 0,
+      step: 1000/this.frame.maxRate,
+      timeout: this.frame.maxRate,
+    }
+
     this.dispatcher.dispatch(new Event('tetris/game/started'))
+  }
+
+  requestAnimationFrame() {
+    return requestAnimationFrame(time => this.loop(time))
   }
 
   update(dt = 0) {
@@ -75,28 +94,72 @@ export default class Tetris {
     ctx.held.clearRect(0, 0, c.held.width, c.held.height)
     this.player.draw()
     this.arena.draw()
+    this.displayFrameRate()
+  }
+
+  start() {
+    // We need to request two frames when restarting the loop in order to
+    // correctly reset the previous timestamp
+    this.frame.id = requestAnimationFrame(time => {
+      this.time.prev = time
+      this.requestAnimationFrame()
+    })
+  }
+
+  stop() {
+    cancelAnimationFrame(this.frame.id)
   }
 
   loop(time = 0) {
-    this.update(time - this.prevTime)
+
+    function calcFrameRate(time) {
+      if (time > this.frame.nextRateUpdate) {
+        this.frame.rate = 0.75*this.frame.count + 0.25*this.frame.rate
+        this.frame.nextRateUpdate = time + 1000
+        this.frame.count = 0
+      }
+      this.frame.count++
+    }
+
+    // Cap frame-rate
+    if (time < (this.time.prev + this.time.step)) {
+      this.frame.id = this.requestAnimationFrame()
+      return
+    }
+    calcFrameRate.call(this, time)
+
+    this.time.delta += Math.max(0, time - this.time.prev)
+    this.time.prev = time
+
+    for (
+      let timeout = 0
+      ; this.time.delta >= this.time.step
+      ; this.time.delta -= this.time.step, timeout++
+    ) {
+      this.update(this.time.step)
+      if (timeout > this.time.timeout) {
+        this.time.delta = 0
+        break
+      }
+    }
+
     this.draw()
-    this.prevTime = time
-    this.animationFrameId = requestAnimationFrame(time => this.loop(time))
+    this.frame.id = this.requestAnimationFrame()
   }
 
-  pauseGame() {
-    cancelAnimationFrame(this.animationFrameId)
+  pause() {
+    this.stop()
     this.dispatcher.dispatch(new Event('tetris/game/paused'))
   }
 
-  unpauseGame() {
-    this.loop(this.prevTime)
+  unpause() {
+    this.start()
     this.dispatcher.dispatch(new Event('tetris/game/unpaused'))
   }
 
   togglePause() {
     this.paused = !this.paused
-    this.paused ? this.pauseGame() : this.unpauseGame()
+    this.paused ? this.pause() : this.unpause()
   }
 
   restartGame() {
@@ -111,5 +174,11 @@ export default class Tetris {
 
   updateHighscore() {
     this.text.highscore.innerHTML = `Highscore ${this.player.highscore} points.`
+  }
+
+  displayFrameRate() {
+    // Report to 1 decimal place
+    this.text.frameRate.innerHTML = 'FPS: ' +
+      parseFloat(Math.round(this.frame.rate*10)/10).toFixed(1)
   }
 }

@@ -46,11 +46,19 @@ span#highscore-text
   margin: 0.5em
   border-radius: 25px
 
-span#app-version
+=debug-output
   display: block
   position: absolute
-  bottom: 0
-  right: 0
   color: #444
   font-size: 10px
   margin: 10px
+
+span#app-version
+  +debug-output
+  bottom: 0
+  right: 0
+
+span#frame-rate
+  +debug-output
+  bottom: 0
+  left: 0
