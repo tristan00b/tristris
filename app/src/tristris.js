@@ -92,7 +92,6 @@ export default class Tristris {
     ctx.main.clearRect(0, 0, c.main.width, c.main.height)
     this.player.draw()
     this.arena.draw()
-    this.displayFrameRate()
   }
 
   start() {
@@ -115,16 +114,18 @@ export default class Tristris {
         this.frame.rate = 0.75*this.frame.count + 0.25*this.frame.rate
         this.frame.nextRateUpdate = time + 1000
         this.frame.count = 0
+        this.text.frameRate.innerHTML = 'FPS: ' +
+          parseFloat(Math.round(this.frame.rate*10)/10).toFixed(1)
       }
       this.frame.count++
     }
+    calcFrameRate.call(this, time)
 
     // Cap frame-rate
     if (time < (this.time.prev + this.time.step)) {
       this.frame.id = this.requestAnimationFrame()
       return
     }
-    calcFrameRate.call(this, time)
 
     this.time.delta += Math.max(0, time - this.time.prev)
     this.time.prev = time
@@ -174,9 +175,4 @@ export default class Tristris {
     this.text.highscore.innerHTML = `Highscore ${this.player.highscore} points.`
   }
 
-  displayFrameRate() {
-    // Report to 1 decimal place
-    this.text.frameRate.innerHTML = 'FPS: ' +
-      parseFloat(Math.round(this.frame.rate*10)/10).toFixed(1)
-  }
 }
