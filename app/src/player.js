@@ -194,7 +194,7 @@ export default class Player {
 
   slam() {
     this.curr.pos = this.slamPos
-    this.dispatcher.dispatch(new Event('tristris/player/slamed'))
+    this.dispatcher.dispatch(new Event('tristris/player/slammed'))
     this.arena.merge(this)
     this.reset()
   }

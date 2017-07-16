@@ -106,7 +106,7 @@
     "eventEffectMap" : {
       "tristris/arena/rowsCleared": "assets/audio/effects/ticktock.wav",
       "tristris/player/rotated" : "assets/audio/effects/blip.wav",
-      "tristris/player/slamed" : "assets/audio/effects/slam.wav"
+      "tristris/player/slammed" : "assets/audio/effects/slam.wav"
     }
   }
 }
