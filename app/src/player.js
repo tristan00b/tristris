@@ -265,6 +265,7 @@ export default class Player {
     if (rowsCleared == 0) return
     this.score = this.score + (rowsCleared ? 10**rowsCleared : 0)
     this.highscore = this.score > this.highscore ? this.score : this.highscore
+    this.dispatcher.dispatch(new Event('tristris/player/scoreUpdated'))
   }
 
 }

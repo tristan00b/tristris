@@ -47,6 +47,7 @@ export default class Tristris {
     this.observer = new EventObserver()
     this.observer.addHandler('tristris/game/togglePause', () => this.togglePause())
     this.observer.addHandler('tristris/arena/overflows', () => this.restartGame())
+    this.observer.addHandler('tristris/player/scoreUpdated', () => this.updateScore())
     this.observer.registerHandlers(this.dispatcher)
 
     this.input = new InputHandler(this)
@@ -84,7 +85,6 @@ export default class Tristris {
     this.input.update()
     this.player.update(dt)
     this.arena.update()
-    this.updateScore()
   }
 
   draw() {
