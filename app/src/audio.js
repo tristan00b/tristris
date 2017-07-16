@@ -19,11 +19,11 @@ export default class SoundPlayer {
 
     this.dispatcher = game.dispatcher
     this.observer = new EventObserver()
-    this.observer.addHandler('tetris/game/started', () => this.playNextTrack())
-    this.observer.addHandler('tetris/game/paused', () => this.stopMusic())
-    this.observer.addHandler('tetris/game/unpaused', () => this.startMusic())
-    this.observer.addHandler('tetris/audio/toggleMusic', () => this.toggleMusic())
-    this.observer.addHandler('tetris/audio/skipSong', () => this.playNextTrack())
+    this.observer.addHandler('tristris/game/started', () => this.playNextTrack())
+    this.observer.addHandler('tristris/game/paused', () => this.stopMusic())
+    this.observer.addHandler('tristris/game/unpaused', () => this.startMusic())
+    this.observer.addHandler('tristris/audio/toggleMusic', () => this.toggleMusic())
+    this.observer.addHandler('tristris/audio/skipSong', () => this.playNextTrack())
 
     const m = this.config.sound.eventEffectMap
     Object.keys(m).forEach(event => {

@@ -30,16 +30,16 @@ export default class Player {
 
     this.dispatcher = game.dispatcher
     this.observer = new EventObserver()
-    this.observer.addHandler('tetris/arena/rowsCleared', (data) => {
+    this.observer.addHandler('tristris/arena/rowsCleared', (data) => {
       this.updateScore(data.rowsCleared)
     })
-    this.observer.addHandler('tetris/game/restarted', () => this.restart())
-    this.observer.addHandler('tetris/player/hold', () => this.hold())
-    this.observer.addHandler('tetris/player/moveDown', () => this.moveDown())
-    this.observer.addHandler('tetris/player/moveLeft', () => this.move(-1))
-    this.observer.addHandler('tetris/player/moveRight', () => this.move(1))
-    this.observer.addHandler('tetris/player/rotate', () => this.rotateRight())
-    this.observer.addHandler('tetris/player/slam', () => this.slam())
+    this.observer.addHandler('tristris/game/restarted', () => this.restart())
+    this.observer.addHandler('tristris/player/hold', () => this.hold())
+    this.observer.addHandler('tristris/player/moveDown', () => this.moveDown())
+    this.observer.addHandler('tristris/player/moveLeft', () => this.move(-1))
+    this.observer.addHandler('tristris/player/moveRight', () => this.move(1))
+    this.observer.addHandler('tristris/player/rotate', () => this.rotateRight())
+    this.observer.addHandler('tristris/player/slam', () => this.slam())
     this.observer.registerHandlers(this.dispatcher)
 
     this.restart()
@@ -100,7 +100,7 @@ export default class Player {
     rotated.forEach(row => row.reverse())
     this.curr.array = rotated
 
-    this.dispatcher.dispatch(new Event('tetris/player/rotated'))
+    this.dispatcher.dispatch(new Event('tristris/player/rotated'))
   }
 
   rotateRight() {
@@ -194,7 +194,7 @@ export default class Player {
 
   slam() {
     this.curr.pos = this.slamPos
-    this.dispatcher.dispatch(new Event('tetris/player/slamed'))
+    this.dispatcher.dispatch(new Event('tristris/player/slamed'))
     this.arena.merge(this)
     this.reset()
   }

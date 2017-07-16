@@ -1,9 +1,9 @@
 /*
-  tetris.js
+  tristris.js
 
   Author:  J. Tristan Bayfield
-  Desc:    Yet another tetrist clone...
-           The Tetris class defined hear contains the game logic for contorlling
+  Desc:    Yet another tristrist clone...
+           The tristris class defined hear contains the game logic for contorlling
            and manipulating the player's piece and board.
   Created: June 23, 2017
   License: GPLv3
@@ -16,7 +16,7 @@ import SoundPlayer from './audio.js'
 import Arena from './arena.js'
 import Player from './player.js'
 
-export default class Tetris {
+export default class Tristris {
 
   constructor(canvas, config) {
 
@@ -45,8 +45,8 @@ export default class Tetris {
 
     this.dispatcher = new EventDispatcher()
     this.observer = new EventObserver()
-    this.observer.addHandler('tetris/game/togglePause', () => this.togglePause())
-    this.observer.addHandler('tetris/arena/overflows', () => this.restartGame())
+    this.observer.addHandler('tristris/game/togglePause', () => this.togglePause())
+    this.observer.addHandler('tristris/arena/overflows', () => this.restartGame())
     this.observer.registerHandlers(this.dispatcher)
 
     this.input = new InputHandler(this)
@@ -73,7 +73,7 @@ export default class Tetris {
       timeout: this.frame.maxRate,
     }
 
-    this.dispatcher.dispatch(new Event('tetris/game/started'))
+    this.dispatcher.dispatch(new Event('tristris/game/started'))
   }
 
   requestAnimationFrame() {
@@ -149,12 +149,12 @@ export default class Tetris {
 
   pause() {
     this.stop()
-    this.dispatcher.dispatch(new Event('tetris/game/paused'))
+    this.dispatcher.dispatch(new Event('tristris/game/paused'))
   }
 
   unpause() {
     this.start()
-    this.dispatcher.dispatch(new Event('tetris/game/unpaused'))
+    this.dispatcher.dispatch(new Event('tristris/game/unpaused'))
   }
 
   togglePause() {
@@ -164,7 +164,7 @@ export default class Tetris {
 
   restartGame() {
     this.updateHighscore()
-    this.dispatcher.dispatch(new Event('tetris/game/restarted'))
+    this.dispatcher.dispatch(new Event('tristris/game/restarted'))
   }
 
   updateScore() {

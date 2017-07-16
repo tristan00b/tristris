@@ -1,6 +1,6 @@
 import 'babel-polyfill'
 import './app.sass'
-import Tetris from './src/tetris.js'
+import Tristris from './src/tristris.js'
 import config from './assets/data/config.json'
 
 config.debug = process.env.NODE_ENV !== 'production'
@@ -16,4 +16,4 @@ const canvas = {
   'next':   document.getElementsByClassName('next-canvas')[0],
   'held':   document.getElementsByClassName('held-canvas')[0],
 }
-new Tetris(canvas, config).start()
+new Tristris(canvas, config).start()
