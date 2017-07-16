@@ -16,13 +16,14 @@ export default class Player {
 
   constructor(game) {
 
-    this.canvas = game.canvas
-    this.context = game.context
-    this.config = game.config
-    this.graphics = game.graphics
     this.arena = game.arena
-    this.score = 0
+    this.canvas = game.canvas
+    this.config = game.config
+    this.context = game.context
+    this.flags = []
+    this.graphics = game.graphics
     this.highscore = 0
+    this.score = 0
     this.time = {
       accumulated: 0,
       step: 1000
@@ -55,10 +56,30 @@ export default class Player {
   }
 
   draw() {
+    this.drawMainCanvas()
+    this.drawHeldCanvas()
+    this.drawNextCanvas()
+  }
+
+  drawMainCanvas() {
     this.graphics.drawShadow(this.context.main, this.curr.array, this.slamPos)
     this.graphics.drawTiles(this.context.main, this.curr.array, this.curr.pos)
-    this.graphics.drawTiles(this.context.next, this.next.array, this.next.pos)
-    this.graphics.drawTiles(this.context.held, this.held.array, this.held.pos)
+  }
+
+  drawHeldCanvas() {
+    if (this.flags.heldPieceUpdated) {
+      this.flags.heldPieceUpdated = false
+      this.context.held.clearRect(0, 0, this.canvas.held.width, this.canvas.held.height)
+      this.graphics.drawTiles(this.context.held, this.held.array, this.held.pos)
+    }
+  }
+
+  drawNextCanvas() {
+    if (this.flags.nextPieceUpdated) {
+      this.flags.nextPieceUpdated = false
+      this.context.next.clearRect(0, 0, this.canvas.next.width, this.canvas.next.height)
+      this.graphics.drawTiles(this.context.next, this.next.array, this.next.pos)
+    }
   }
 
   translate(amt) {
@@ -236,6 +257,24 @@ export default class Player {
       x: canvas.width/(this.config.graphics.tileScale*2) - piece.center.x,
       y: canvas.height/(this.config.graphics.tileScale*2) - piece.center.y
     }
+  }
+
+  get next() {
+    return this._next
+  }
+
+  set next(newPiece) {
+    this._next = newPiece
+    this.flags.nextPieceUpdated = true
+  }
+
+  get held() {
+    return this._held
+  }
+
+  set held(newPiece) {
+    this._held = newPiece
+    this.flags.heldPieceUpdated = true
   }
 
   reset() {

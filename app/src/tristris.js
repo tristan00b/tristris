@@ -90,8 +90,6 @@ export default class Tristris {
   draw() {
     const {canvas: c, context: ctx} = this
     ctx.main.clearRect(0, 0, c.main.width, c.main.height)
-    ctx.next.clearRect(0, 0, c.next.width, c.next.height)
-    ctx.held.clearRect(0, 0, c.held.width, c.held.height)
     this.player.draw()
     this.arena.draw()
     this.displayFrameRate()
