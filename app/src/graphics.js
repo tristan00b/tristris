@@ -13,11 +13,12 @@ export default class Graphics {
     this.colours = game.config.graphics.tetrominos.colours
   }
 
-  drawTile(context, x, y, scale, colour) {
+  drawTile(context, x, y, scale, fillColour, strokeColour, alpha = 1.0) {
     [x, y] = [x*scale, y*scale]
-    context.fillStyle = colour
+    context.globalAlpha = alpha
+    context.fillStyle = fillColour
     context.fillRect(x, y, scale, scale)
-    context.strokeStyle = 'white'
+    context.strokeStyle = strokeColour
     context.lineWidth = 1
     context.strokeRect(x, y, scale, scale)
   }
@@ -27,7 +28,18 @@ export default class Graphics {
       row.forEach((value, xOffset) => {
         if (value) {
           this.drawTile(context, pos.x + xOffset, pos.y + yOffset,
-            this.scale, this.colours[value-1])
+            this.scale, this.colours[value-1], 'white')
+        }
+      })
+    })
+  }
+
+  drawShadow(context, tiles, pos = {x: 0, y: 0}) {
+    tiles.forEach((row, yOffset) => {
+      row.forEach((value, xOffset) => {
+        if (value) {
+          this.drawTile(context, pos.x + xOffset, pos.y + yOffset,
+            this.scale, '#222', '#444', 0.5)
         }
       })
     })

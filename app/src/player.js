@@ -18,7 +18,7 @@ export default class Player {
 
     this.canvas = game.canvas
     this.context = game.context
-    this.config = game.config.graphics
+    this.config = game.config
     this.graphics = game.graphics
     this.arena = game.arena
     this.score = 0
@@ -39,6 +39,7 @@ export default class Player {
     this.observer.addHandler('tetris/player/moveLeft', () => this.move(-1))
     this.observer.addHandler('tetris/player/moveRight', () => this.move(1))
     this.observer.addHandler('tetris/player/rotate', () => this.rotateRight())
+    this.observer.addHandler('tetris/player/slam', () => this.slam())
     this.observer.registerHandlers(this.dispatcher)
 
     this.restart()
@@ -54,6 +55,7 @@ export default class Player {
   }
 
   draw() {
+    this.graphics.drawShadow(this.context.main, this.curr.array, this.slamPos)
     this.graphics.drawTiles(this.context.main, this.curr.array, this.curr.pos)
     this.graphics.drawTiles(this.context.next, this.next.array, this.next.pos)
     this.graphics.drawTiles(this.context.held, this.held.array, this.held.pos)
@@ -133,6 +135,70 @@ export default class Player {
     }
   }
 
+  get size() {
+    return {
+      w: this.curr.array.length,
+      h: this.curr.array.length
+    }
+  }
+
+  get top() {
+    const {w, h} = this.size
+    const piece = this.curr.array
+    let top = h;
+    for (let j = 0; j < w; ++j) {
+      for (let i = 0; i < h; ++i) {
+        if (piece[i][j]) {
+          top = Math.min(i, top)
+          break
+        }
+      }
+    }
+    return this.curr.pos.y + top
+  }
+
+  get bottom() {
+    const {w, h} = this.size
+    const piece = this.curr.array
+    let bottom = 0;
+    for (let j = 0; j < w; ++j) {
+      for (let i = h-1; i >= 0; --i) {
+        if (piece[i][j]) {
+          bottom = Math.max(i, bottom)
+          break
+        }
+      }
+    }
+    return this.curr.pos.y + bottom
+  }
+
+  get slamPos() {
+    const {pos, array: piece} = this.curr
+    const colHeights = this.arena.columnHeights(this)
+    let minDist = this.arena.size.h + this.size.h
+
+    for (let j = 0; j < this.size.h; ++j) {
+      for (let i = this.size.h - 1; i >= 0; --i) {
+        if (piece[i][j]) {
+          minDist = Math.min(colHeights[j+pos.x] - (i+pos.y), minDist)
+          break
+        }
+      }
+    }
+
+    return {
+      x: pos.x,
+      y: pos.y + minDist - 1
+    }
+  }
+
+  slam() {
+    this.curr.pos = this.slamPos
+    this.dispatcher.dispatch(new Event('tetris/player/slamed'))
+    this.arena.merge(this)
+    this.reset()
+  }
+
   hold() {
 
     let temp = this.held
@@ -141,7 +207,7 @@ export default class Player {
     if (temp.shape) {
       this.curr = temp
       this.curr.pos = {
-        x: (this.config.grid.main.size.w - this.curr.array.length)/2|0,
+        x: (this.config.graphics.grid.main.size.w - this.curr.array.length)/2|0,
         y: -this.curr.array.length
       }
     } else {
@@ -155,20 +221,20 @@ export default class Player {
   newPiece(shape) {
     return Object.assign(
       {shape: shape, pos: {x: 0, y: 0}},
-      deepCopy(this.config.tetrominos.shapes[shape])
+      deepCopy(this.config.graphics.tetrominos.shapes[shape])
     )
   }
 
   chooseNewPiece() {
-    const freq = this.config.tetrominos.frequencies
+    const freq = this.config.graphics.tetrominos.frequencies
     const shape = freq[Math.random() * freq.length | 0]
     return this.newPiece(shape)
   }
 
   centerPosition(piece, canvas) {
     return {
-      x: canvas.width/(this.config.tileScale*2) - piece.center.x,
-      y: canvas.height/(this.config.tileScale*2) - piece.center.y
+      x: canvas.width/(this.config.graphics.tileScale*2) - piece.center.x,
+      y: canvas.height/(this.config.graphics.tileScale*2) - piece.center.y
     }
   }
 
@@ -177,7 +243,7 @@ export default class Player {
     this.next = this.chooseNewPiece()
 
     this.curr.pos = {
-      x: (this.config.grid.main.size.w - this.curr.array.length)/2|0,
+      x: (this.config.graphics.grid.main.size.w - this.curr.array.length)/2|0,
       y: -this.curr.array.length
     }
 

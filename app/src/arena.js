@@ -19,6 +19,7 @@ export default class Arena {
 
     this.context = game.context.main
     this.graphics = game.graphics
+    this.config = game.config
 
     let size = game.config.graphics.grid.main.size
     this.grid = {
@@ -79,6 +80,26 @@ export default class Arena {
         {rowsCleared: rowsCleared}
       ))
     }
+  }
+
+  get size() {
+    return this.config.graphics.grid.main.size
+  }
+
+  columnHeights(player) {
+    let {size: {w, h}, array: grid} = this.grid
+
+    let heights = Array(w).fill(h)
+
+    for (let j = 0; j < w; ++j) {
+      for (let i = Math.max(0, player.bottom); i < h; ++i) {
+        if (grid[i][j]) {
+          heights[j] = i
+          break
+        }
+      }
+    }
+    return heights
   }
 
   checkForCollision(player) {
