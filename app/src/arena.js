@@ -45,14 +45,14 @@ export default class Arena {
 
     if (this.overflows(player)) {
       this.dispatcher.dispatch(new Event('tristris/arena/overflows'))
-      return
+      return // don't merge on overflow
     }
 
-    let {pos, array} = player.curr
-    array.forEach((row, yOffset) => {
-      row.forEach((value, xOffset) => {
+    let {pos, array: piece} = player.curr
+    piece.forEach((row, y) => {
+      row.forEach((value, x) => {
         if (value) {
-          this.grid.array[pos.y + yOffset][pos.x + xOffset] = value
+          this.grid.array[pos.y + y][pos.x + x] = value
         }
       })
     })
@@ -104,9 +104,9 @@ export default class Arena {
 
   checkForCollision(player) {
 
-    let collisionDetected = false
     let {pos, array} = player.curr
     let {size: {w, h}, array: grid} = this.grid
+    let xpos, ypos;
 
     for (let y = 0; y < array.length; ++y) {
       for (let x = 0; x < array.length; ++x) {
@@ -114,38 +114,36 @@ export default class Arena {
         // nothing to do if a tile is empty so check this first
         if (array[y][x]) {
 
-          // collision with LHS wall
-          if (x + pos.x < 0) {
-            collisionDetected = -1
-            break
+          xpos = x + pos.x
+          ypos = y + pos.y
+
+          if (xpos < 0) {
+            return Arena.collisionDirection.LEFT
           }
 
-          // collision with RHS wall
-          if (x + pos.x  >= w) {
-            collisionDetected = 1
-            break
+          if (xpos >= w) {
+            return Arena.collisionDirection.RIGHT
           }
 
-          // or a collision with either the floor or another tile on the board
-          if (y + pos.y >= 0 // tiles can be 'offscreen' so avoid bad indices
-              && (y + pos.y >= h
-                  || grid[y + pos.y][x + pos.x])) {
-            collisionDetected = true
-            break
+          if ((ypos >= 0) && (ypos >= h || grid[ypos][xpos])) {
+            return Arena.collisionDirection.BOTTOM
           }
         }
       }
     }
-
-    return collisionDetected
   }
 
   overflows(player) {
     // Return true if any non-empty tile of the player piece is above the top
     // of the arena grid. Only the first line above the top needs to be checked.
-    const {array, pos} = player.curr
-    let firstLineOver = array.length - (array.length+pos.y) - 1 // assumes negative y
-    return (pos.y < 0 && array[firstLineOver].some(x => x > 0))
+    const {array: piece, pos} = player.curr
+
+    if (pos.y >=0) return false // can't overflow with nonnegative y value
+
+    let firstLineOverTop = Math.min(piece.size, piece.size+pos.y) - 1
+    let doesOverflow = piece[firstLineOverTop].some(x => x > 0)
+
+    return doesOverflow
   }
 
   restart() {
@@ -157,3 +155,9 @@ export default class Arena {
   }
 
 }
+
+Arena.collisionDirection = Object.freeze({
+  LEFT: "left",
+  BOTTOM: "bottom",
+  RIGHT: "right"
+})

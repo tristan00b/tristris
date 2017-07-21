@@ -9,6 +9,7 @@
   License: GPLv3
 */
 
+import Arena from './arena.js'
 import {EventObserver} from './event.js'
 import {deepCopy, zeroMatrix} from './util.js'
 
@@ -138,19 +139,15 @@ export default class Player {
     for(let i=0; i < this.curr.array.length; ++i) {
       let dir = this.arena.checkForCollision(this)
 
-      // LHS collision
-      if (dir === -1) {
+      if (dir === Arena.collisionDirection.LEFT) {
         this.translate({x:1, y:0})
       }
 
-      // RHS collision
-      else if (dir === 1) {
+      else if (dir === Arena.collisionDirection.RIGHT) {
         this.translate({x:-1, y:0})
       }
 
-      // Bottom collision
-      else if (dir === true) {
-        // player.translate({x:0, y:-1})
+      else if (dir === Arena.collisionDirection.BOTTOM) {
         this.curr.array = orig
       }
     }
