@@ -6,7 +6,7 @@ const GitRevisionPlugin = require('git-revision-webpack-plugin');
 const webpack = require('webpack');
 
 const gitRevisionPlugin = new GitRevisionPlugin({
-  versionCommand: 'describe --tags',
+  versionCommand: 'describe --tags --long',
   commithashCommand: 'rev-list --max-count=1 --abbrev-commit HEAD'
 });
 
