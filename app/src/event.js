@@ -23,7 +23,7 @@ export class EventObserver {
   }
 
   registerHandlers(dispatcher) {
-    dispatcher.subscribeAll(Object.keys(this.handlers), this)
+    dispatcher.subscribeAll(this, Object.keys(this.handlers))
   }
 
 }
@@ -42,12 +42,12 @@ export class EventDispatcher {
     }
   }
 
-  subscribeAll(events, observer) {
+  subscribeAll(observer, events) {
     events.forEach(event => this.subscribe(event, observer)
     )
   }
 
-  unsubscribe(eventType, observer) {
+  unsubscribe(observer, eventType) {
     if (eventType in this.observers) {
       this.observers[eventType].delete(observer)
     }
@@ -55,9 +55,7 @@ export class EventDispatcher {
 
   dispatch(event) {
     if (event.type in this.observers) {
-      this.observers[event.type].forEach(
-        observer => observer.notify(event)
-      )
+      this.observers[event.type].forEach(observer => observer.notify(event))
     }
   }
 

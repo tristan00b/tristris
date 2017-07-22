@@ -3,8 +3,6 @@
 
   Author:  J. Tristan Bayfield
   Desc:    Yet another tristrist clone...
-           The tristris class defined hear contains the game logic for contorlling
-           and manipulating the player's piece and board.
   Created: June 23, 2017
   License: GPLv3
 */
@@ -47,7 +45,7 @@ export default class Tristris {
     this.observer = new EventObserver()
     this.observer.addHandler('tristris/game/togglePause', () => this.togglePause())
     this.observer.addHandler('tristris/arena/overflows', () => this.restartGame())
-    this.observer.addHandler('tristris/player/scoreUpdated', () => this.updateScore())
+    this.observer.addHandler('tristris/player/scoreUpdated', () => this.displayScore())
     this.observer.registerHandlers(this.dispatcher)
 
     this.input = new InputHandler(this)
@@ -78,7 +76,11 @@ export default class Tristris {
   }
 
   requestAnimationFrame() {
-    return requestAnimationFrame(time => this.loop(time))
+    this.frame.id = requestAnimationFrame(time => this.loop(time))
+  }
+
+  cancelAnimationFrame() {
+    cancelAnimationFrame(this.frame.id)
   }
 
   update(dt = 0) {
@@ -104,46 +106,42 @@ export default class Tristris {
   }
 
   stop() {
-    cancelAnimationFrame(this.frame.id)
+    this.resetFrameRate()
+    this.cancelAnimationFrame()
   }
 
-  loop(time = 0) {
+  loop(currentTime = 0) {
 
-    function calcFrameRate(time) {
-      if (time > this.frame.nextRateUpdate) {
-        this.frame.rate = 0.75*this.frame.count + 0.25*this.frame.rate
-        this.frame.nextRateUpdate = time + 1000
-        this.frame.count = 0
-        this.text.frameRate.innerHTML = 'FPS: ' +
-          parseFloat(Math.round(this.frame.rate*10)/10).toFixed(1)
-      }
-      this.frame.count++
-    }
-    calcFrameRate.call(this, time)
+    this.updateFrameRate(currentTime)
 
-    // Cap frame-rate
-    if (time < (this.time.prev + this.time.step)) {
-      this.frame.id = this.requestAnimationFrame()
-      return
-    }
+    this.time.delta += Math.max(0, currentTime - this.time.prev)
+    this.time.prev = currentTime
 
-    this.time.delta += Math.max(0, time - this.time.prev)
-    this.time.prev = time
-
-    for (
-      let timeout = 0
-      ; this.time.delta >= this.time.step
-      ; this.time.delta -= this.time.step, timeout++
-    ) {
+    let timer = this.time.timeout
+    while(this.time.delta >= this.time.step && timer--) {
       this.update(this.time.step)
-      if (timeout > this.time.timeout) {
-        this.time.delta = 0
-        break
-      }
+      this.time.delta -= this.time.step
+      if (0 === timer) this.time.delta = 0
     }
 
     this.draw()
-    this.frame.id = this.requestAnimationFrame()
+    this.requestAnimationFrame()
+  }
+
+  updateFrameRate(time) {
+    if (time > this.frame.nextRateUpdate) {
+      this.frame.rate = 0.75*this.frame.count + 0.25*this.frame.rate
+      this.frame.nextRateUpdate = time + 1000
+      this.frame.count = 0
+      this.displayFrameRate()
+    }
+    this.frame.count++
+  }
+
+  resetFrameRate() {
+    this.frame.rate = 0
+    this.frame.count = 0
+    this.displayFrameRate()
   }
 
   pause() {
@@ -162,17 +160,21 @@ export default class Tristris {
   }
 
   restartGame() {
-    this.updateHighscore()
+    this.displayHighscore()
     this.dispatcher.dispatch(new Event('tristris/game/restarted'))
   }
 
-  updateScore() {
+  displayScore() {
     this.text.score.innerHTML = `You have ${this.player.score} points` +
       (this.player.score > 100000 ? '!' : '.')
   }
 
-  updateHighscore() {
+  displayHighscore() {
     this.text.highscore.innerHTML = `Highscore ${this.player.highscore} points.`
   }
 
+  displayFrameRate() {
+    this.text.frameRate.innerHTML = 'FPS: ' +
+      parseFloat(Math.round(this.frame.rate*10)/10).toFixed(1)
+  }
 }

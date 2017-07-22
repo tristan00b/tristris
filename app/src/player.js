@@ -3,7 +3,7 @@
 
   Author:  J. Tristan Bayfield
   Desc:    Defines the Player class, which represents the current tile and it's
-           position, on the board as well as provides methods for translation
+           position, on the board as well as provides methods for translation.
            and rotation.
   Created: June 23, 2017
   License: GPLv3
@@ -21,7 +21,7 @@ export default class Player {
     this.canvas = game.canvas
     this.config = game.config
     this.context = game.context
-    this.flags = []
+    this.flags = {}
     this.graphics = game.graphics
     this.highscore = 0
     this.score = 0
@@ -32,14 +32,13 @@ export default class Player {
 
     this.dispatcher = game.dispatcher
     this.observer = new EventObserver()
-    this.observer.addHandler('tristris/arena/rowsCleared', (data) => {
-      this.updateScore(data.rowsCleared)
-    })
+    this.observer.addHandler('tristris/arena/rowsCleared', data =>
+      this.updateScore(data.rowsCleared))
     this.observer.addHandler('tristris/game/restarted', () => this.restart())
     this.observer.addHandler('tristris/player/hold', () => this.hold())
     this.observer.addHandler('tristris/player/moveDown', () => this.moveDown())
-    this.observer.addHandler('tristris/player/moveLeft', () => this.move(-1))
-    this.observer.addHandler('tristris/player/moveRight', () => this.move(1))
+    this.observer.addHandler('tristris/player/moveLeft', () => this.moveSideways(-1))
+    this.observer.addHandler('tristris/player/moveRight', () => this.moveSideways(1))
     this.observer.addHandler('tristris/player/rotate', () => this.rotateRight())
     this.observer.addHandler('tristris/player/slam', () => this.slam())
     this.observer.registerHandlers(this.dispatcher)
@@ -88,7 +87,7 @@ export default class Player {
     this.curr.pos.x += amt.x
   }
 
-  move(dx) {
+  moveSideways(dx) {
     this.translate({x: dx, y:0})
     if (this.arena.checkForCollision(this)) {
       this.translate({x: -dx, y:0})
@@ -97,7 +96,7 @@ export default class Player {
 
   moveDown() {
 
-    // Reset Accumulator every time the piece is dropped
+    // Reset accumulator every time the piece moves down
     this.time.accumulated = 0
 
     this.translate({x: 0, y: 1})
@@ -113,12 +112,11 @@ export default class Player {
     let orig = this.curr.array
     let rotated = zeroMatrix(this.curr.array.length)
 
-    orig.forEach((row, x) => {
-      row.forEach((row, y) => {
-        rotated[y][x] = orig[x][y]
+    orig.forEach((row, i) => {
+      row.forEach((val, j) => {
+        rotated[j][i] = val
       })
     })
-
     rotated.forEach(row => row.reverse())
     this.curr.array = rotated
 
@@ -180,7 +178,7 @@ export default class Player {
     const piece = this.curr.array
     let bottom = 0;
     for (let j = 0; j < w; ++j) {
-      for (let i = h-1; i >= 0; --i) {
+      for (let i = h - 1; i >= 0; --i) {
         if (piece[i][j]) {
           bottom = Math.max(i, bottom)
           break
@@ -212,18 +210,18 @@ export default class Player {
 
   slam() {
     this.curr.pos = this.slamPos
-    this.dispatcher.dispatch(new Event('tristris/player/slammed'))
     this.arena.merge(this)
     this.reset()
+    this.dispatcher.dispatch(new Event('tristris/player/slammed'))
   }
 
   hold() {
 
-    let temp = this.held
+    let heldPiece = this.held
     this.held = this.newPiece(this.curr.shape)
 
-    if (temp.shape) {
-      this.curr = temp
+    if (heldPiece.shape) {
+      this.curr = heldPiece
       this.curr.pos = {
         x: (this.config.graphics.grid.main.size.w - this.curr.array.length)/2|0,
         y: -this.curr.array.length

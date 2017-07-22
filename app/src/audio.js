@@ -25,9 +25,9 @@ export default class SoundPlayer {
     this.observer.addHandler('tristris/audio/toggleMusic', () => this.toggleMusic())
     this.observer.addHandler('tristris/audio/skipSong', () => this.playNextTrack())
 
-    const m = this.config.sound.eventEffectMap
-    Object.keys(m).forEach(event => {
-      const effect = new Audio(m[event]) // life extended by closure below
+    const {eventEffectMap} = this.config.sound
+    Object.keys(eventEffectMap).forEach(event => {
+      const effect = new Audio(eventEffectMap[event]) // closure extends life
       this.observer.addHandler(event, () => this.playSound(effect))
     })
 
@@ -43,11 +43,9 @@ export default class SoundPlayer {
     const tracks = this.config.sound.tracks
     const numTracks = tracks.length
     const trackNo = Math.random()*numTracks | 0
-    const file = tracks[trackNo]
-    console.log('playing: ' + file)
-    this.bgMusic.src = file
 
-    this.muted ? this.bgMusic.pause() : this.bgMusic.play()
+    this.bgMusic.src = tracks[trackNo]
+    this.startMusic()
   }
 
   startMusic() {

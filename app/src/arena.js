@@ -3,9 +3,9 @@
 
   Author:  J. Tristan Bayfield
   Desc:    Defines the Arena class, representing the board and pieces that have
-           been played so far. Offers collision detection between the player's
-           current piece and tiles remaining on the board, as well as a sweep
-           method for clearing complete lines.
+           been played so far. Offers collision detection between the player'
+           tiles on the board, as well as a sweep method for clearing completed
+           rows.
   Created: June 23, 2017
   License: GPLv3
 */
@@ -86,9 +86,12 @@ export default class Arena {
     return this.config.graphics.grid.main.size
   }
 
+  /**
+   *  Returns an array of max tile heights for each column occupied by `player`.
+   *  Used to determine the distance between `player` the floor below.
+   */
   columnHeights(player) {
     let {size: {w, h}, array: grid} = this.grid
-
     let heights = Array(w).fill(h)
 
     for (let j = 0; j < w; ++j) {
@@ -140,18 +143,13 @@ export default class Arena {
 
     if (pos.y >=0) return false // can't overflow with nonnegative y value
 
-    let firstLineOverTop = Math.min(piece.size, piece.size+pos.y) - 1
+    let firstLineOverTop = Math.min(piece.length, 0 - pos.y) - 1
     let doesOverflow = piece[firstLineOverTop].some(x => x > 0)
-
     return doesOverflow
   }
 
   restart() {
-    this.grid.array.forEach((row, y) => {
-      row.forEach((value, x) => {
-        this.grid.array[y][x] = 0
-      })
-    })
+    this.grid.array.forEach(row => row.fill(0))
   }
 
 }
