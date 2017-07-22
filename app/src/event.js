@@ -43,8 +43,7 @@ export class EventDispatcher {
   }
 
   subscribeAll(observer, events) {
-    events.forEach(event => this.subscribe(event, observer)
-    )
+    events.forEach(event => this.subscribe(event, observer))
   }
 
   unsubscribe(observer, eventType) {

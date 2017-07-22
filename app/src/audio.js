@@ -11,7 +11,6 @@ import {EventObserver} from './event.js'
 export default class SoundPlayer {
 
   constructor(game) {
-
     this.config = game.config
     this.muted = game.config.debug === true
     this.bgMusic = new Audio()

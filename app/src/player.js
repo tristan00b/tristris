@@ -16,7 +16,6 @@ import {deepCopy, zeroMatrix} from './util.js'
 export default class Player {
 
   constructor(game) {
-
     this.arena = game.arena
     this.canvas = game.canvas
     this.config = game.config
@@ -95,7 +94,6 @@ export default class Player {
   }
 
   moveDown() {
-
     // Reset accumulator every time the piece moves down
     this.time.accumulated = 0
 
@@ -109,8 +107,8 @@ export default class Player {
   }
 
   rotate() {
-    let orig = this.curr.array
-    let rotated = zeroMatrix(this.curr.array.length)
+    const orig = this.curr.array
+    const rotated = zeroMatrix(this.curr.array.length)
 
     orig.forEach((row, i) => {
       row.forEach((val, j) => {
@@ -124,8 +122,7 @@ export default class Player {
   }
 
   rotateRight() {
-
-    let orig = this.curr.array
+    const orig = this.curr.array
     this.rotate()
 
     // A rotation next to a wall can result in collision. When this happens,
@@ -216,8 +213,7 @@ export default class Player {
   }
 
   hold() {
-
-    let heldPiece = this.held
+    const heldPiece = this.held
     this.held = this.newPiece(this.curr.shape)
 
     if (heldPiece.shape) {

@@ -16,12 +16,11 @@ import {zeroMatrix} from './util.js'
 export default class Arena {
 
   constructor(game) {
-
     this.context = game.context.main
     this.graphics = game.graphics
     this.config = game.config
 
-    let size = game.config.graphics.grid.main.size
+    const size = game.config.graphics.grid.main.size
     this.grid = {
       array: zeroMatrix(size.w, size.h),
       size: size
@@ -48,7 +47,7 @@ export default class Arena {
       return // don't merge on overflow
     }
 
-    let {pos, array: piece} = player.curr
+    const {pos, array: piece} = player.curr
     piece.forEach((row, y) => {
       row.forEach((value, x) => {
         if (value) {
@@ -59,8 +58,8 @@ export default class Arena {
   }
 
   sweep() {
-    let {size: {w, h}, array: oldGrid} = this.grid
-    let newGrid = zeroMatrix(w, h)
+    const {size: {w, h}, array: oldGrid} = this.grid
+    const newGrid = zeroMatrix(w, h)
     let rowsCleared = 0
     for (let i=h-1; i>=0; --i) {
       if (oldGrid[i].every(x => x > 0)) {
@@ -91,8 +90,8 @@ export default class Arena {
    *  Used to determine the distance between `player` the floor below.
    */
   columnHeights(player) {
-    let {size: {w, h}, array: grid} = this.grid
-    let heights = Array(w).fill(h)
+    const {size: {w, h}, array: grid} = this.grid
+    const heights = Array(w).fill(h)
 
     for (let j = 0; j < w; ++j) {
       for (let i = Math.max(0, player.bottom); i < h; ++i) {
@@ -106,13 +105,11 @@ export default class Arena {
   }
 
   checkForCollision(player) {
+    const {pos, array} = player.curr
+    const {size: {w, h}, array: grid} = this.grid
 
-    let {pos, array} = player.curr
-    let {size: {w, h}, array: grid} = this.grid
-    let xpos, ypos;
-
-    for (let y = 0; y < array.length; ++y) {
-      for (let x = 0; x < array.length; ++x) {
+    for (let y = 0, ypos; y < array.length; ++y) {
+      for (let x = 0, xpos; x < array.length; ++x) {
 
         // nothing to do if a tile is empty so check this first
         if (array[y][x]) {
@@ -143,8 +140,8 @@ export default class Arena {
 
     if (pos.y >=0) return false // can't overflow with nonnegative y value
 
-    let firstLineOverTop = Math.min(piece.length, 0 - pos.y) - 1
-    let doesOverflow = piece[firstLineOverTop].some(x => x > 0)
+    const firstLineOverTop = Math.min(piece.length, 0 - pos.y) - 1
+    const doesOverflow = piece[firstLineOverTop].some(x => x > 0)
     return doesOverflow
   }
 
