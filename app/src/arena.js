@@ -29,7 +29,7 @@ export default class Arena {
 
     this.dispatcher = game.dispatcher
     this.observer = new EventObserver()
-    this.observer.addHandler('tristris/game/restarted', () => this.restart())
+    this.observer.addHandler('game/restarted', () => this.restart())
     this.observer.registerHandlers(this.dispatcher)
   }
 
@@ -44,7 +44,7 @@ export default class Arena {
   merge(player) {
 
     if (this.overflows(player)) {
-      this.dispatcher.dispatch(new Event('tristris/arena/overflows'))
+      this.dispatcher.dispatch(new Event('arena/overflows'))
       return // don't merge on overflow
     }
 
@@ -76,7 +76,7 @@ export default class Arena {
 
     if (rowsCleared) {
       this.dispatcher.dispatch(Object.assign(
-        new Event('tristris/arena/rowsCleared'),
+        new Event('arena/rowsCleared'),
         {rowsCleared: rowsCleared}
       ))
     }

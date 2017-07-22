@@ -43,9 +43,9 @@ export default class Tristris {
 
     this.dispatcher = new EventDispatcher()
     this.observer = new EventObserver()
-    this.observer.addHandler('tristris/game/togglePause', () => this.togglePause())
-    this.observer.addHandler('tristris/arena/overflows', () => this.restartGame())
-    this.observer.addHandler('tristris/player/scoreUpdated', () => this.displayScore())
+    this.observer.addHandler('game/togglePause', () => this.togglePause())
+    this.observer.addHandler('arena/overflows', () => this.restartGame())
+    this.observer.addHandler('player/scoreUpdated', () => this.displayScore())
     this.observer.registerHandlers(this.dispatcher)
 
     this.input = new InputHandler(this)
@@ -72,7 +72,7 @@ export default class Tristris {
       timeout: this.frame.maxRate,
     }
 
-    this.dispatcher.dispatch(new Event('tristris/game/started'))
+    this.dispatcher.dispatch(new Event('game/started'))
   }
 
   requestAnimationFrame() {
@@ -146,12 +146,12 @@ export default class Tristris {
 
   pause() {
     this.stop()
-    this.dispatcher.dispatch(new Event('tristris/game/paused'))
+    this.dispatcher.dispatch(new Event('game/paused'))
   }
 
   unpause() {
     this.start()
-    this.dispatcher.dispatch(new Event('tristris/game/unpaused'))
+    this.dispatcher.dispatch(new Event('game/unpaused'))
   }
 
   togglePause() {
@@ -161,7 +161,7 @@ export default class Tristris {
 
   restartGame() {
     this.displayHighscore()
-    this.dispatcher.dispatch(new Event('tristris/game/restarted'))
+    this.dispatcher.dispatch(new Event('game/restarted'))
   }
 
   displayScore() {

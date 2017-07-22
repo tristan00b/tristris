@@ -32,15 +32,15 @@ export default class Player {
 
     this.dispatcher = game.dispatcher
     this.observer = new EventObserver()
-    this.observer.addHandler('tristris/arena/rowsCleared', data =>
+    this.observer.addHandler('arena/rowsCleared', data =>
       this.updateScore(data.rowsCleared))
-    this.observer.addHandler('tristris/game/restarted', () => this.restart())
-    this.observer.addHandler('tristris/player/hold', () => this.hold())
-    this.observer.addHandler('tristris/player/moveDown', () => this.moveDown())
-    this.observer.addHandler('tristris/player/moveLeft', () => this.moveSideways(-1))
-    this.observer.addHandler('tristris/player/moveRight', () => this.moveSideways(1))
-    this.observer.addHandler('tristris/player/rotate', () => this.rotateRight())
-    this.observer.addHandler('tristris/player/slam', () => this.slam())
+    this.observer.addHandler('game/restarted', () => this.restart())
+    this.observer.addHandler('player/hold', () => this.hold())
+    this.observer.addHandler('player/moveDown', () => this.moveDown())
+    this.observer.addHandler('player/moveLeft', () => this.moveSideways(-1))
+    this.observer.addHandler('player/moveRight', () => this.moveSideways(1))
+    this.observer.addHandler('player/rotate', () => this.rotateRight())
+    this.observer.addHandler('player/slam', () => this.slam())
     this.observer.registerHandlers(this.dispatcher)
 
     this.restart()
@@ -120,7 +120,7 @@ export default class Player {
     rotated.forEach(row => row.reverse())
     this.curr.array = rotated
 
-    this.dispatcher.dispatch(new Event('tristris/player/rotated'))
+    this.dispatcher.dispatch(new Event('player/rotated'))
   }
 
   rotateRight() {
@@ -212,7 +212,7 @@ export default class Player {
     this.curr.pos = this.slamPos
     this.arena.merge(this)
     this.reset()
-    this.dispatcher.dispatch(new Event('tristris/player/slammed'))
+    this.dispatcher.dispatch(new Event('player/slammed'))
   }
 
   hold() {
@@ -299,7 +299,7 @@ export default class Player {
     if (rowsCleared == 0) return
     this.score = this.score + (rowsCleared ? 10**rowsCleared : 0)
     this.highscore = this.score > this.highscore ? this.score : this.highscore
-    this.dispatcher.dispatch(new Event('tristris/player/scoreUpdated'))
+    this.dispatcher.dispatch(new Event('player/scoreUpdated'))
   }
 
 }
