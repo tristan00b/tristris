@@ -28,34 +28,41 @@ export class EventObserver {
 
 }
 
-export class EventDispatcher {
+export const EventDispatcher = (() => {
 
-  constructor() {
-    this.observers = {}
-  }
+  class _EventDispatcher {
 
-  subscribe(eventType, observer) {
-    if (eventType in this.observers) {
-      this.observers[eventType].add(observer)
-    } else {
-      this.observers[eventType] = new Set([observer])
+    constructor() {
+      this.observers = {}
+    }
+    subscribe(eventType, observer) {
+      if (eventType in this.observers)
+        this.observers[eventType].add(observer)
+      else
+        this.observers[eventType] = new Set([observer])
+    }
+
+    subscribeAll(observer, events) {
+      events.forEach(event => this.subscribe(event, observer))
+    }
+
+    unsubscribe(observer, eventType) {
+      if (eventType in this.observers)
+        this.observers[eventType].delete(observer)
+    }
+
+    dispatch(event) {
+      if (event.type in this.observers)
+        this.observers[event.type].forEach(observer => observer.notify(event))
     }
   }
 
-  subscribeAll(observer, events) {
-    events.forEach(event => this.subscribe(event, observer))
-  }
+  const instance = new _EventDispatcher()
 
-  unsubscribe(observer, eventType) {
-    if (eventType in this.observers) {
-      this.observers[eventType].delete(observer)
+  return {
+    getInstance() {
+      return instance
     }
   }
 
-  dispatch(event) {
-    if (event.type in this.observers) {
-      this.observers[event.type].forEach(observer => observer.notify(event))
-    }
-  }
-
-}
+})()

@@ -6,7 +6,7 @@
   License: GPLv3
 */
 
-import {EventObserver} from './event.js'
+import {EventDispatcher, EventObserver} from './event.js'
 
 export default class SoundPlayer {
 
@@ -16,7 +16,7 @@ export default class SoundPlayer {
     this.bgMusic = new Audio()
     this.bgMusic.onended = () => this.playNextTrack()
 
-    this.dispatcher = game.dispatcher
+    this.dispatcher = EventDispatcher.getInstance()
     this.observer = new EventObserver()
     this.observer.addHandler('game/started', () => this.playNextTrack())
     this.observer.addHandler('game/paused', () => this.stopMusic())

@@ -10,7 +10,7 @@
 */
 
 import Arena from './arena.js'
-import {EventObserver} from './event.js'
+import {EventDispatcher, EventObserver} from './event.js'
 import {deepCopy, zeroMatrix} from './util.js'
 
 export default class Player {
@@ -29,7 +29,7 @@ export default class Player {
       step: 1000
     }
 
-    this.dispatcher = game.dispatcher
+    this.dispatcher = EventDispatcher.getInstance()
     this.observer = new EventObserver()
     this.observer.addHandler('arena/rowsCleared', data =>
       this.updateScore(data.rowsCleared))

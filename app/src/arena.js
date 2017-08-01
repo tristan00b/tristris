@@ -10,7 +10,7 @@
   License: GPLv3
 */
 
-import {EventObserver} from './event.js'
+import {EventDispatcher, EventObserver} from './event.js'
 import {zeroMatrix} from './util.js'
 
 export default class Arena {
@@ -26,7 +26,7 @@ export default class Arena {
       size: size
     }
 
-    this.dispatcher = game.dispatcher
+    this.dispatcher = EventDispatcher.getInstance()
     this.observer = new EventObserver()
     this.observer.addHandler('game/restarted', () => this.restart())
     this.observer.registerHandlers(this.dispatcher)

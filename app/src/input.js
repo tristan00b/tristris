@@ -30,7 +30,7 @@ export default class InputHandler extends Input {
   constructor(game) {
     super()
     this.game = game
-    this.dispatcher = game.dispatcher
+    this.dispatcher = EventDispatcher.getInstance()
     this.contexts = game.config.input.contexts
     this.keyCodeEventMap = game.config.input.keyCodeEventMap
   }

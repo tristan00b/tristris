@@ -41,7 +41,7 @@ export default class Tristris {
       frameRate: document.getElementById('frame-rate')
     }
 
-    this.dispatcher = new EventDispatcher()
+    this.dispatcher = EventDispatcher.getInstance()
     this.observer = new EventObserver()
     this.observer.addHandler('game/togglePause', () => this.togglePause())
     this.observer.addHandler('arena/overflows', () => this.restartGame())
