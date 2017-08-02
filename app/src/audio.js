@@ -6,13 +6,13 @@
   License: GPLv3
 */
 
+import config from './config.js'
 import {EventDispatcher, EventObserver} from './event.js'
 
 export default class SoundPlayer {
 
   constructor(game) {
-    this.config = game.config
-    this.muted = game.config.debug === true
+    this.muted = config.debug === true
     this.bgMusic = new Audio()
     this.bgMusic.onended = () => this.playNextTrack()
 
@@ -24,7 +24,7 @@ export default class SoundPlayer {
     this.observer.addHandler('audio/toggleMusic', () => this.toggleMusic())
     this.observer.addHandler('audio/skipSong', () => this.playNextTrack())
 
-    const {eventEffectMap} = this.config.sound
+    const {eventEffectMap} = config.sound
     Object.keys(eventEffectMap).forEach(event => {
       const effect = new Audio(eventEffectMap[event]) // closure extends life
       this.observer.addHandler(event, () => this.playSound(effect))
@@ -39,7 +39,7 @@ export default class SoundPlayer {
 
   playNextTrack() {
     // Choose a random track to play, then play it
-    const tracks = this.config.sound.tracks
+    const tracks = config.sound.tracks
     const numTracks = tracks.length
     const trackNo = Math.random()*numTracks | 0
 

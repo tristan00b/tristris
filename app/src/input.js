@@ -6,6 +6,7 @@
   License: GPLv3
 */
 
+import config from './config.js'
 import {EventDispatcher, EventObserver} from './event.js'
 
 export class Input {
@@ -31,8 +32,8 @@ export default class InputHandler extends Input {
     super()
     this.game = game
     this.dispatcher = EventDispatcher.getInstance()
-    this.contexts = game.config.input.contexts
-    this.keyCodeEventMap = game.config.input.keyCodeEventMap
+    this.contexts = config.input.contexts
+    this.keyCodeEventMap = config.input.keyCodeEventMap
   }
 
   handleKeyDown(event) {

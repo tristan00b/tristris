@@ -10,6 +10,7 @@
   License: GPLv3
 */
 
+import config from './config.js'
 import {EventDispatcher, EventObserver} from './event.js'
 import {zeroMatrix} from './util.js'
 
@@ -18,9 +19,8 @@ export default class Arena {
   constructor(game) {
     this.context = game.context.main
     this.graphics = game.graphics
-    this.config = game.config
 
-    const size = game.config.graphics.grid.main.size
+    const size = config.graphics.grid.main.size
     this.grid = {
       array: zeroMatrix(size.w, size.h),
       size: size
@@ -82,7 +82,7 @@ export default class Arena {
   }
 
   get size() {
-    return this.config.graphics.grid.main.size
+    return config.graphics.grid.main.size
   }
 
   /**

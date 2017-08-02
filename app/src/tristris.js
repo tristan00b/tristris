@@ -7,6 +7,7 @@
   License: GPLv3
 */
 
+import config from './config.js'
 import {EventObserver, EventDispatcher} from './event.js'
 import InputHandler from './input.js'
 import Graphics from './graphics.js'
@@ -16,9 +17,7 @@ import Player from './player.js'
 
 export default class Tristris {
 
-  constructor(canvas, config) {
-
-    this.config = config
+  constructor(canvas) {
 
     let {grid: g, tileScale: scale} = config.graphics
     canvas.main.width = g.main.size.w * scale

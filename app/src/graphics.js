@@ -6,11 +6,13 @@
   License: GPLv3
 */
 
+import config from './config.js'
+
 export default class Graphics {
 
   constructor(game) {
-    this.scale = game.config.graphics.tileScale
-    this.colours = game.config.graphics.tetrominos.colours
+    this.scale = config.graphics.tileScale
+    this.colours = config.graphics.tetrominos.colours
   }
 
   drawTile(context, x, y, scale, fillColour, strokeColour, alpha = 1.0) {

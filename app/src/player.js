@@ -10,6 +10,7 @@
 */
 
 import Arena from './arena.js'
+import config from './config.js'
 import {EventDispatcher, EventObserver} from './event.js'
 import {deepCopy, zeroMatrix} from './util.js'
 
@@ -18,7 +19,6 @@ export default class Player {
   constructor(game) {
     this.arena = game.arena
     this.canvas = game.canvas
-    this.config = game.config
     this.context = game.context
     this.flags = {}
     this.graphics = game.graphics
@@ -219,7 +219,7 @@ export default class Player {
     if (heldPiece.shape) {
       this.curr = heldPiece
       this.curr.pos = {
-        x: (this.config.graphics.grid.main.size.w - this.curr.array.length)/2|0,
+        x: (config.graphics.grid.main.size.w - this.curr.array.length)/2|0,
         y: -this.curr.array.length
       }
     } else {
@@ -233,20 +233,20 @@ export default class Player {
   newPiece(shape) {
     return Object.assign(
       {shape: shape, pos: {x: 0, y: 0}},
-      deepCopy(this.config.graphics.tetrominos.shapes[shape])
+      deepCopy(config.graphics.tetrominos.shapes[shape])
     )
   }
 
   chooseNewPiece() {
-    const freq = this.config.graphics.tetrominos.frequencies
+    const freq = config.graphics.tetrominos.frequencies
     const shape = freq[Math.random() * freq.length | 0]
     return this.newPiece(shape)
   }
 
   centerPosition(piece, canvas) {
     return {
-      x: canvas.width/(this.config.graphics.tileScale*2) - piece.center.x,
-      y: canvas.height/(this.config.graphics.tileScale*2) - piece.center.y
+      x: canvas.width/(config.graphics.tileScale*2) - piece.center.x,
+      y: canvas.height/(config.graphics.tileScale*2) - piece.center.y
     }
   }
 
@@ -273,7 +273,7 @@ export default class Player {
     this.next = this.chooseNewPiece()
 
     this.curr.pos = {
-      x: (this.config.graphics.grid.main.size.w - this.curr.array.length)/2|0,
+      x: (config.graphics.grid.main.size.w - this.curr.array.length)/2|0,
       y: -this.curr.array.length
     }
 
