@@ -74,16 +74,23 @@
   },
   "input": {
     "contexts" : {
-      "running" : {
+      "menu" : {
+        "13": "game/start"
+      },
+      "game" : {
         "83": "audio/skipSong",
         "77": "audio/toggleMusic",
-        "80": "game/togglePause",
+        "80": "game/pause",
+        "27": "game/exitToMenu",
         "16": "player/hold",
         "40": "player/moveDown",
         "37": "player/moveLeft",
         "39": "player/moveRight",
         "38": "player/rotate",
         "32": "player/slam"
+      },
+      "pause" : {
+        "80": "game/unpause"
       }
     }
   },

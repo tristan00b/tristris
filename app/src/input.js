@@ -12,6 +12,7 @@ import {EventDispatcher, EventObserver} from './event.js'
 export class Input {
 
   constructor() {
+
     document.addEventListener('keydown', event => {
       this.handleKeyDown(event)
     })
@@ -28,23 +29,34 @@ export class Input {
 
 export default class InputHandler extends Input {
 
-  constructor(game) {
+  constructor(state, options = {}) {
     super()
-    this.game = game
-    this.dispatcher = EventDispatcher.getInstance()
+    this.consumesEvents = options.consumeEvents || false
+    this.context = state.context
     this.contexts = config.input.contexts
-    this.keyCodeEventMap = config.input.keyCodeEventMap
+    this.dispatcher = EventDispatcher.getInstance()
+    this.machine = state.machine
+    this.state = state
+  }
+
+  canConsume(event) {
+    return !event.consumed
+  }
+
+  canProcess(event) {
+    return (this.state === this.machine.state)
+        && (event.keyCode in this.context)
+  }
+
+  consumeIfRequired(event) {
+    if (this.consumesEvents) event.consumed = true
   }
 
   handleKeyDown(event) {
-    if (event.keyCode in this.context) {
+    if (this.canConsume(event) && this.canProcess(event)) {
+      this.consumeIfRequired(event)
       this.dispatcher.dispatch(new Event(this.context[event.keyCode]))
     }
-  }
-
-  update() {
-    // Use current game state to determine the inputs available to player
-    this.context = this.contexts[this.game.state]
   }
 
 }

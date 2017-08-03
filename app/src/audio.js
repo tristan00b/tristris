@@ -19,8 +19,8 @@ export default class SoundPlayer {
     this.dispatcher = EventDispatcher.getInstance()
     this.observer = new EventObserver()
     this.observer.addHandler('game/started', () => this.playNextTrack())
-    this.observer.addHandler('game/paused', () => this.stopMusic())
-    this.observer.addHandler('game/unpaused', () => this.startMusic())
+    this.observer.addHandler('game/pause', () => this.stopMusic())
+    this.observer.addHandler('game/unpause', () => this.startMusic())
     this.observer.addHandler('audio/toggleMusic', () => this.toggleMusic())
     this.observer.addHandler('audio/skipSong', () => this.playNextTrack())
 
