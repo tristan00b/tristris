@@ -12,7 +12,7 @@
 import Arena from './arena.js'
 import config from './config.js'
 import {EventDispatcher, EventObserver} from './event.js'
-import {deepCopy, zeroMatrix} from './util.js'
+import {deepCopy, zeroMatrix, Point, Rect} from './util.js'
 
 export default class Player {
 
@@ -20,6 +20,7 @@ export default class Player {
     this.arena = game.arena
     this.canvas = game.canvas
     this.context = game.context
+    this.dimensions = game.dimensions
     this.flags = {}
     this.graphics = game.graphics
     this.highscore = 0
@@ -55,30 +56,45 @@ export default class Player {
   }
 
   draw() {
-    this.drawMainCanvas()
-    this.drawHeldCanvas()
-    this.drawNextCanvas()
-  }
 
-  drawMainCanvas() {
-    this.graphics.drawShadow(this.context.main, this.curr.array, this.slamPos)
-    this.graphics.drawTiles(this.context.main, this.curr.array, this.curr.pos)
-  }
+    const dim = this.dimensions
 
-  drawHeldCanvas() {
-    if (this.flags.heldPieceUpdated) {
-      this.flags.heldPieceUpdated = false
-      this.context.held.clearRect(0, 0, this.canvas.held.width, this.canvas.held.height)
-      this.graphics.drawTiles(this.context.held, this.held.array, this.held.pos)
+    function tileOnGrid(pos) {
+      return pos.x >= 0 && pos.x < dim.grid.main.size.w
+          && pos.y >= 0 && pos.y < dim.grid.main.size.h
     }
-  }
 
-  drawNextCanvas() {
-    if (this.flags.nextPieceUpdated) {
-      this.flags.nextPieceUpdated = false
-      this.context.next.clearRect(0, 0, this.canvas.next.width, this.canvas.next.height)
-      this.graphics.drawTiles(this.context.next, this.next.array, this.next.pos)
+    const options = {
+      tileFilter: (pos) => !tileOnGrid(pos)
     }
+
+    // Draw player piece shadow
+    options.origin = dim.grid.main.rect
+    options.pos = this.slamPos
+    options.fillStyle = '#222'
+    options.strokeStyle = '#444'
+    options.alpha = 0.5
+    this.graphics.drawTiles(this.curr.array, options)
+
+    // Draw player piece (draw after shadow; may overlap)
+    options.pos = this.curr.pos
+    options.fillStyle = null
+    options.strokeStyle = 'white'
+    options.alpha = 1
+    this.graphics.drawTiles(this.curr.array, options)
+
+    // Draw next piece
+    this.flags.nextPieceUpdated = false
+    options.origin = dim.grid.next.rect
+    options.pos = this.next.pos
+    this.graphics.drawTiles(this.next.array, options)
+
+    // Draw held piece
+    if (!this.held) return
+    this.flags.heldPieceUpdated = false
+    options.origin = dim.grid.held.rect
+    options.pos = this.held.pos
+    this.graphics.drawTiles(this.held.array, options)
   }
 
   translate(amt) {
@@ -87,9 +103,9 @@ export default class Player {
   }
 
   moveSideways(dx) {
-    this.translate({x: dx, y:0})
+    this.translate(new Point(dx, 0))
     if (this.arena.checkForCollision(this)) {
-      this.translate({x: -dx, y:0})
+      this.translate(new Point(-dx, 0))
     }
   }
 
@@ -97,10 +113,10 @@ export default class Player {
     // Reset accumulator every time the piece moves down
     this.time.accumulated = 0
 
-    this.translate({x: 0, y: 1})
+    this.translate(new Point(0, 1))
 
     if (this.arena.checkForCollision(this)) {
-      this.translate({x: 0, y: -1})
+      this.translate(new Point(0, -1))
       this.arena.merge(this)
       this.reset()
     }
@@ -135,11 +151,11 @@ export default class Player {
       let dir = this.arena.checkForCollision(this)
 
       if (dir === Arena.collisionDirection.LEFT) {
-        this.translate({x:1, y:0})
+        this.translate(new Point(1, 0))
       }
 
       else if (dir === Arena.collisionDirection.RIGHT) {
-        this.translate({x:-1, y:0})
+        this.translate(new Point(-1, 0))
       }
 
       else if (dir === Arena.collisionDirection.BOTTOM) {
@@ -199,10 +215,7 @@ export default class Player {
       }
     }
 
-    return {
-      x: pos.x,
-      y: pos.y + minDist - 1
-    }
+    return new Point(pos.x, pos.y + minDist - 1)
   }
 
   slam() {
@@ -216,38 +229,38 @@ export default class Player {
     const heldPiece = this.held
     this.held = this.newPiece(this.curr.shape)
 
-    if (heldPiece.shape) {
+    if (heldPiece && heldPiece.shape) {
       this.curr = heldPiece
-      this.curr.pos = {
-        x: (config.graphics.grid.main.size.w - this.curr.array.length)/2|0,
-        y: -this.curr.array.length
-      }
+      this.curr.pos = new Point(
+        (config.graphics.grid.main.size.w - this.curr.array.length)/2|0,
+        -this.curr.array.length
+      )
     } else {
       this.reset()
     }
 
-    this.next.pos = this.centerPosition(this.next, this.canvas.next)
-    this.held.pos = this.centerPosition(this.held, this.canvas.held)
+    this.next.pos = this.centerPosition(this.next, config.graphics.grid.next)
+    this.held.pos = this.centerPosition(this.held, config.graphics.grid.held)
   }
 
   newPiece(shape) {
     return Object.assign(
-      {shape: shape, pos: {x: 0, y: 0}},
-      deepCopy(config.graphics.tetrominos.shapes[shape])
+      {shape: shape, pos: new Point},
+      deepCopy(config.tetrominos.shapes[shape])
     )
   }
 
   chooseNewPiece() {
-    const freq = config.graphics.tetrominos.frequencies
+    const freq = config.tetrominos.frequencies
     const shape = freq[Math.random() * freq.length | 0]
     return this.newPiece(shape)
   }
 
-  centerPosition(piece, canvas) {
-    return {
-      x: canvas.width/(config.graphics.tileScale*2) - piece.center.x,
-      y: canvas.height/(config.graphics.tileScale*2) - piece.center.y
-    }
+  centerPosition(piece, grid) {
+    return new Point(
+      0.5*grid.size.w - piece.center.x,
+      0.5*grid.size.h - piece.center.y
+    )
   }
 
   get next() {
@@ -272,22 +285,18 @@ export default class Player {
     this.curr = this.next
     this.next = this.chooseNewPiece()
 
-    this.curr.pos = {
-      x: (config.graphics.grid.main.size.w - this.curr.array.length)/2|0,
-      y: -this.curr.array.length
-    }
+    this.curr.pos = new Point(
+      (config.graphics.grid.main.size.w - this.curr.array.length)/2|0,
+      -this.curr.array.length
+    )
 
-    this.next.pos = this.centerPosition(this.next, this.canvas.next)
+    this.next.pos = this.centerPosition(this.next, config.graphics.grid.next)
   }
 
   restart() {
     this.score = 0
     this.next = this.chooseNewPiece()
-    this.held = {
-      shape: '',
-      array: [],
-      pos: {x: 0, y: 0}
-    }
+    this._held = null
     this.reset()
   }
 

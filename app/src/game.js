@@ -7,6 +7,7 @@
 */
 
 import config from './config.js'
+import {getCanvas, getContext} from './util.js'
 import {EventDispatcher, EventObserver} from './event.js'
 import {InputHander} from './input.js'
 import {StateMachine} from './state.js'
@@ -15,7 +16,7 @@ import Tristris from './tristris.js'
 
 export default class Game {
 
-  constructor(canvas) {
+  constructor() {
 
     this.machine = new StateMachine({
       initialState: 'game',
@@ -33,8 +34,10 @@ export default class Game {
     })
 
     this.text = {
-      frameRate: document.getElementById('frame-rate')
+      frameRate: document.getElementById('frame-rate'),
+      appVersion: document.getElementById('app-version')
     }
+    this.text.appVersion.innerHTML = config.appVersion;
 
     this.frame =  {
       id: null,
@@ -50,6 +53,27 @@ export default class Game {
       step: 1000/this.frame.maxRate,
       timeout: this.frame.maxRate,
     }
+
+    this.canvas = getCanvas(config.graphics.canvas.id)
+    this.context = getContext(this.canvas)
+    window.addEventListener('resize', () => this.resize())
+    this.resize()
+  }
+
+  resize() {
+    const canvas = document.createElement('canvas')
+    const context = canvas.getContext('2d')
+    const scale = config.graphics.canvas.relativeSize
+    const w = scale.w * window.innerWidth
+    const h = scale.h * window.innerHeight
+
+    canvas.width = w
+    canvas.height = h
+    context.drawImage(this.canvas, 0, 0)
+    this.canvas.width  = w
+    this.canvas.height = h
+    this.context.drawImage(canvas, 0, 0)
+    this.state.resize()
   }
 
   requestAnimationFrame() {

@@ -6,6 +6,7 @@
   License: GPLv3
 */
 
+import config from './config.js'
 import {EventDispatcher, EventObserver} from './event.js'
 import InputHander from './input.js'
 
@@ -19,12 +20,16 @@ class Transition {
 
 export class State {
 
-  constructor(stateMachine, inputContext) {
+  constructor(stateMachine, inputContext = {}) {
     this.machine = stateMachine
-    this.context = inputContext || {}
+    this.context = inputContext
     this.input = new InputHander(this, {consumeEvents: true})
     this.dispatcher = EventDispatcher.getInstance();
     this.observer = new EventObserver()
+  }
+
+  get name() {
+    return this._name || 'undefined'
   }
 
   _addTransition(transition, handler) {
@@ -45,10 +50,17 @@ export class State {
     this._addTransition(transition, this.machine.popState)
   }
 
-  enter()    { /* Overridden by subclass */ }
-  exit()     { /* Overridden by subclass */ }
-  update(dt) { /* Overridden by subclass */ }
-  draw()     { /* Overridden by subclass */ }
+  /* Methods overridden by subclass */
+
+  enter() {
+    config.debug && console.log('entering ' + this.name)
+  }
+  exit() {
+    config.debug && console.log('exiting '  + this.name)
+  }
+  update(dt) { }
+  draw()     { }
+  resize()   { }
 }
 
 export class StateMachine {
@@ -65,7 +77,7 @@ export class StateMachine {
     // prepare states dict
     const states = Object.entries(defaults.states).reduce((states, state) => {
       const [name, ctor] = state
-      states[name] = new ctor(this)
+      states[name] = Object.assign(new ctor(this), {_name: name})
       return states
     }, {})
     states.initialState = states[defaults.initialState]
@@ -86,31 +98,66 @@ export class StateMachine {
     return this._state[this._state.length - 1]
   }
 
+  get source() {
+    return this._source || null
+  }
+
+  set source(state) {
+    this._source = state
+  }
+
+  // get target() {
+  //   return this._target || null
+  // }
+  //
+  // set target(state) {
+  //   return this._target
+  // }
+
+  enterCurrentState() {
+    this.state && this.state.enter()
+  }
+
+  exitCurrentState() {
+    this.state && this.state.exit()
+  }
+
   _push(state) {
     this._state.push(state)
-    this.state.enter()
   }
 
   _pop() {
-    this.state.exit()
-    return this._state.pop()
+    return this.source = this._state.pop()
   }
 
   changeState(transition) {
     if (transition in this.transitions) {
+      this.exitCurrentState()
       this._pop()
       this._push(this.transitions[transition].target)
+      this.enterCurrentState()
     }
   }
 
   pushState(transition) {
     if (transition in this.transitions) {
+      this.exitCurrentState()
       this._push(this.transitions[transition].target)
+      this.enterCurrentState()
     }
   }
 
   popState() {
+    this.exitCurrentState()
     this._pop()
-    this.state && this.state.enter()
+    this.enterCurrentState()
   }
+
+  // update(dt = 0) {
+  //   this.state.update(dt)
+  // }
+  //
+  // draw() {
+  //   this._state.forEach(state => state.draw())
+  // }
 }

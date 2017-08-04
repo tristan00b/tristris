@@ -18,6 +18,7 @@ export default class Arena {
 
   constructor(game) {
     this.context = game.context.main
+    this.dimensions = game.dimensions
     this.graphics = game.graphics
 
     const size = config.graphics.grid.main.size
@@ -37,7 +38,8 @@ export default class Arena {
   }
 
   draw() {
-    this.graphics.drawTiles(this.context, this.grid.array)
+    this.graphics.drawTiles(this.grid.array,
+      { origin: this.dimensions.grid.main.rect })
   }
 
   merge(player) {
