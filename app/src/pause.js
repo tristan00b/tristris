@@ -14,4 +14,14 @@ export default class Pause extends State {
     super(stateMachine, config.input.contexts.pause)
     this.addPopTransition('game/unpause')
   }
+
+  enter() {
+    super.enter.call(this)
+    this.dispatcher.dispatch(new Event('game/paused'))
+  }
+
+  exit() {
+    super.exit.call(this)
+    this.dispatcher.dispatch(new Event('game/unpaused'))
+  }
 }

@@ -82,7 +82,11 @@ export default class Tristris extends State {
   enter() {
     super.enter.call(this)
     this.resize()
-    if ('title' === this.machine.source.name) this.restartGame()
+
+    if ('pause' === this.machine.source.name) return
+
+    this.restartGame()
+    this.dispatcher.dispatch(new Event('game/started'))
   }
 
   update(dt = 0) {
