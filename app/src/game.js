@@ -11,6 +11,7 @@ import {getCanvas, getContext} from './util.js'
 import {EventDispatcher, EventObserver} from './event.js'
 import {InputHander} from './input.js'
 import {StateMachine} from './state.js'
+import Title from './title.js'
 import Pause from './pause.js'
 import Tristris from './tristris.js'
 
@@ -19,17 +20,18 @@ export default class Game {
   constructor() {
 
     this.machine = new StateMachine({
-      initialState: 'game',
+      initialState: config.debug ? 'game' : 'title',
       states: {
-        // 'menu'  : MenuState,
-        'game'  : Tristris,
         'pause' : Pause,
+        'game'  : Tristris,
+        'title' : Title,
       },
       transitions: [
-        // ['game/start',      'menu',  'game'],
-        // ['game/exitToMenu', 'game',  'menu'],
-        ['game/pause',      'game',  'pause'],
-        ['game/unpause',    'pause', 'game'],
+        ['game/start',       'title', 'game'],
+        ['game/exitToTitle', 'game',  'title'],
+        ['game/exitToTitle', 'title',  'title'],
+        ['game/pause',       'game',  'pause'],
+        ['game/unpause',     'pause', 'game'],
       ]
     })
 
