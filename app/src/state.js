@@ -91,7 +91,10 @@ export class StateMachine {
 
     // init this
     Object.assign(this, defaults, {states, transitions, _state: []})
+
+    // startup the machine
     this._push(states.initialState)
+    this.state.enter()
   }
 
   get state() {
@@ -99,7 +102,7 @@ export class StateMachine {
   }
 
   get source() {
-    return this._source || null
+    return this._source || {}
   }
 
   set source(state) {
@@ -107,7 +110,7 @@ export class StateMachine {
   }
 
   // get target() {
-  //   return this._target || null
+  //   return this._target || {}
   // }
   //
   // set target(state) {
