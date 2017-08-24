@@ -1,6 +1,6 @@
 {
   "name": "tristris",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "description": "Yet another Tetris clone",
   "main": "index.js",
   "repository": {
