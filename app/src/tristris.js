@@ -89,6 +89,11 @@ export default class Tristris extends State {
     this.dispatcher.dispatch(new Event('game/started'))
   }
 
+  exit() {
+    super.exit.call(this)
+    this.dispatcher.dispatch(new Event('game/stopped'))
+  }
+
   update(dt = 0) {
     this.player.update(dt)
     this.arena.update()
