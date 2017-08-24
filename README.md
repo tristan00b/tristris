@@ -4,6 +4,8 @@ A Tetris clone written in pure JavaScript.
 
 [Play now!](https://tribayf.github.io/tristris)
 
+\***Note:** Currently works best in latest versions of Chrome. YMMV with other browsers.
+
 ### Controls
 
 - Move: `←`, `↑`, `→`, `↓`
