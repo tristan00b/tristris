@@ -22,7 +22,7 @@ export function zeroMatrix(width, height) {
   return Array(height || width).fill().map(() => Array(width).fill(0))
 }
 
-export function identityMatrix(width, height) {
+export function onesMatrix(width, height) {
   return Array(height || width).fill().map(() => Array(width).fill(1))
 }
 
