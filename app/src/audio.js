@@ -7,27 +7,27 @@
 */
 
 import config from './config.js'
-import {EventDispatcher, EventObserver} from './event.js'
+import { EventDispatcher, EventObserver } from './event.js'
 
 export default class SoundPlayer {
 
   constructor(game) {
-    this.muted = config.debug === true
+    this.muted   = config.debug === true
     this.bgMusic = new Audio()
     this.bgMusic.onended = () => this.playNextTrack()
 
     this.dispatcher = EventDispatcher.getInstance()
-    this.observer = new EventObserver()
-    this.observer.addHandler('game/started', () => this.playNextTrack())
-    this.observer.addHandler('game/stopped', () => this.stopMusic())
-    this.observer.addHandler('game/pause', () => this.stopMusic())
-    this.observer.addHandler('game/unpause', () => this.startMusic())
+    this.observer   = new EventObserver()
+    this.observer.addHandler('game/started',      () => this.playNextTrack())
+    this.observer.addHandler('game/stopped',      () => this.stopMusic())
+    this.observer.addHandler('game/pause',        () => this.stopMusic())
+    this.observer.addHandler('game/unpause',      () => this.startMusic())
     this.observer.addHandler('audio/toggleMusic', () => this.toggleMusic())
-    this.observer.addHandler('audio/skipSong', () => this.playNextTrack())
+    this.observer.addHandler('audio/skipSong',    () => this.playNextTrack())
 
-    const {eventEffectMap} = config.sound
+    const { eventEffectMap } = config.sound
     Object.keys(eventEffectMap).forEach(event => {
-      const effect = new Audio(eventEffectMap[event]) // closure extends life
+      const effect = new Audio(eventEffectMap[event])
       this.observer.addHandler(event, () => this.playSound(effect))
     })
 
@@ -39,17 +39,16 @@ export default class SoundPlayer {
   }
 
   playNextTrack() {
-    // Choose a random track to play, then play it
-    const tracks = config.sound.tracks
-    const numTracks = tracks.length
-    const trackNo = Math.random()*numTracks | 0
+    const tracks     = config.sound.tracks
+    const numTracks  = tracks.length
+    const trackNo    = (Math.random() * numTracks) | 0
 
     this.bgMusic.src = tracks[trackNo]
     this.startMusic()
   }
 
   startMusic() {
-    if (!this.muted) this.bgMusic.play()
+    if (false == this.muted) this.bgMusic.play()
   }
 
   stopMusic() {
