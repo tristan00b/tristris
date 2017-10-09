@@ -11,24 +11,24 @@
 */
 
 import config from './config.js'
-import {EventDispatcher, EventObserver} from './event.js'
-import {zeroMatrix} from './util.js'
+import { EventDispatcher, EventObserver } from './event.js'
+import { zeroMatrix } from './util.js'
 
 export default class Arena {
 
   constructor(game) {
-    this.context = game.context.main
+    this.context    = game.context.main
     this.dimensions = game.dimensions
-    this.graphics = game.graphics
+    this.graphics   = game.graphics
 
     const size = config.graphics.grid.main.size
-    this.grid = {
-      array: zeroMatrix(size.w, size.h),
-      size: size
+    this.grid  = {
+      array    : zeroMatrix(size.w, size.h),
+      size     : size
     }
 
     this.dispatcher = EventDispatcher.getInstance()
-    this.observer = new EventObserver()
+    this.observer   = new EventObserver()
     this.observer.addHandler('game/restarted', () => this.restart())
     this.observer.registerHandlers(this.dispatcher)
   }
@@ -38,8 +38,8 @@ export default class Arena {
   }
 
   draw() {
-    this.graphics.drawTiles(this.grid.array,
-      { origin: this.dimensions.grid.main.rect })
+    const { x, y } = this.dimensions.grid.main.rect
+    this.graphics.drawTiles(this.grid.array, { origin: { x, y } })
   }
 
   merge(player) {
@@ -52,17 +52,16 @@ export default class Arena {
     const {pos, array: piece} = player.curr
     piece.forEach((row, y) => {
       row.forEach((value, x) => {
-        if (value) {
-          this.grid.array[pos.y + y][pos.x + x] = value
-        }
+        if (value) this.grid.array[pos.y + y][pos.x + x] = value
       })
     })
   }
 
   sweep() {
-    const {size: {w, h}, array: oldGrid} = this.grid
+    const { size: { w, h }, array: oldGrid } = this.grid
     const newGrid = zeroMatrix(w, h)
-    let rowsCleared = 0
+    let   rowsCleared = 0
+
     for (let i=h-1; i>=0; --i) {
       if (oldGrid[i].every(x => x > 0)) {
         rowsCleared++
@@ -77,9 +76,7 @@ export default class Arena {
 
     if (rowsCleared) {
       this.dispatcher.dispatch(Object.assign(
-        new Event('arena/rowsCleared'),
-        {rowsCleared: rowsCleared}
-      ))
+        new Event('arena/rowsCleared'), { rowsCleared: rowsCleared }))
     }
   }
 
@@ -92,7 +89,7 @@ export default class Arena {
    *  Used to determine the distance between `player` the floor below.
    */
   columnHeights(player) {
-    const {size: {w, h}, array: grid} = this.grid
+    const { size: { w, h }, array: grid } = this.grid
     const heights = Array(w).fill(h)
 
     for (let j = 0; j < w; ++j) {
@@ -103,12 +100,13 @@ export default class Arena {
         }
       }
     }
+
     return heights
   }
 
   checkForCollision(player) {
-    const {pos, array} = player.curr
-    const {size: {w, h}, array: grid} = this.grid
+    const { pos, array } = player.curr
+    const { size: { w, h }, array: grid } = this.grid
 
     for (let y = 0, ypos; y < array.length; ++y) {
       for (let x = 0, xpos; x < array.length; ++x) {
@@ -138,9 +136,9 @@ export default class Arena {
   overflows(player) {
     // Return true if any non-empty tile of the player piece is above the top
     // of the arena grid. Only the first line above the top needs to be checked.
-    const {array: piece, pos} = player.curr
+    const { array: piece, pos } = player.curr
 
-    if (pos.y >=0) return false // can't overflow with nonnegative y value
+    if (pos.y >= 0) return false // can't overflow with nonnegative y value
 
     const firstLineOverTop = Math.min(piece.length, 0 - pos.y) - 1
     const doesOverflow = piece[firstLineOverTop].some(x => x > 0)
