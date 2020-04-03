@@ -32,7 +32,9 @@ export default class Title extends State {
   constructor(stateMachine) {
     super(stateMachine, config.input.contexts.title)
     this.addChangeTransition('game/start')
-    this.addChangeTransition('game/exitToTitle')
+
+    // Not needed to re-enter title (but why?):
+    // this.addChangeTransition('game/exitToTitle')
 
     this.canvas = getCanvas(config.graphics.canvas.id)
     this.context = getContext(this.canvas)
@@ -48,6 +50,7 @@ export default class Title extends State {
       accumulated: 0,
       step: 750
     }
+    
     this.flags = {
       drawText: true
     }

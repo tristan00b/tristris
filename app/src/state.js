@@ -7,12 +7,12 @@
 */
 
 import config from './config.js'
-import {EventDispatcher, EventObserver} from './event.js'
+import { EventDispatcher, EventObserver } from './event.js'
 import InputHander from './input.js'
 
 class Transition {
   constructor(event, source, target) {
-    this.event = event
+    this.event  = event
     this.source = source
     this.target = target
   }
@@ -20,37 +20,39 @@ class Transition {
 
 export class State {
 
-  constructor(stateMachine, inputContext = {}) {
-    this.machine = stateMachine
-    this.context = inputContext
-    this.input = new InputHander(this, {consumeEvents: true})
+  constructor(stateMachine, inputContext = { }) {
+    this.machine    = stateMachine
+    this.context    = inputContext
+
+    this.input      = new InputHander(this, { consumeEvents: true })
+
     this.dispatcher = EventDispatcher.getInstance();
-    this.observer = new EventObserver()
+    this.observer   = new EventObserver()
   }
 
   get name() {
     return this._name || 'undefined'
   }
 
-  _addTransition(transition, handler) {
+  addTransition(transition, handler) {
     this.observer.addHandler(transition, () =>
       handler.call(this.machine, transition))
     this.dispatcher.subscribe(transition, this.observer)
   }
 
   addChangeTransition(transition) {
-    this._addTransition(transition, this.machine.changeState)
+    this.addTransition(transition, this.machine.changeState)
   }
 
   addPushTransition(transition) {
-    this._addTransition(transition, this.machine.pushState)
+    this.addTransition(transition, this.machine.pushState)
   }
 
   addPopTransition(transition) {
-    this._addTransition(transition, this.machine.popState)
+    this.addTransition(transition, this.machine.popState)
   }
 
-  /* Methods overridden by subclass */
+  /* Methods overridden by subclasses: */
 
   enter() {
     config.debug && console.log('entering ' + this.name)
@@ -65,21 +67,21 @@ export class State {
 
 export class StateMachine {
 
-  constructor(options = {}) {
+  constructor(options = { }) {
 
     // assign option defaults
     const defaults = {
-      initialState: options.initialState || 'default',
-      states: (options.states || { 'default': State }),
-      transitions: (options.transitions || [])
+      initialState : options.initialState || 'default',
+      states       : options.states       || { 'default': State },
+      transitions  : options.transitions  || []
     }
 
     // prepare states dict
     const states = Object.entries(defaults.states).reduce((states, state) => {
       const [name, ctor] = state
-      states[name] = Object.assign(new ctor(this), {_name: name})
+      states[name] = Object.assign(new ctor(this), { _name: name })
       return states
-    }, {})
+    }, { })
     states.initialState = states[defaults.initialState]
 
     // prepare transitions dict
@@ -87,10 +89,10 @@ export class StateMachine {
       const [event, source, target] = triplet
       transitions[event] = new Transition(event, states[source], states[target])
       return transitions
-    }, {})
+    }, { })
 
     // init this
-    Object.assign(this, defaults, {states, transitions, _state: []})
+    Object.assign(this, defaults, { states, transitions, _state: [] })
 
     // startup the machine
     this._push(states.initialState)
@@ -102,20 +104,12 @@ export class StateMachine {
   }
 
   get source() {
-    return this._source || {}
+    return this._source || { }
   }
 
   set source(state) {
     this._source = state
   }
-
-  // get target() {
-  //   return this._target || {}
-  // }
-  //
-  // set target(state) {
-  //   return this._target
-  // }
 
   enterCurrentState() {
     this.state && this.state.enter()
@@ -155,12 +149,4 @@ export class StateMachine {
     this._pop()
     this.enterCurrentState()
   }
-
-  // update(dt = 0) {
-  //   this.state.update(dt)
-  // }
-  //
-  // draw() {
-  //   this._state.forEach(state => state.draw())
-  // }
 }
