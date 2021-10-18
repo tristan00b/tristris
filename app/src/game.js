@@ -6,21 +6,26 @@
   License: GPLv3
 */
 
-import config from './config.js'
 import {getCanvas, getContext} from './util.js'
-import {EventDispatcher, EventObserver} from './event.js'
-import {InputHander} from './input.js'
 import {StateMachine} from './state.js'
 import Title from './title.js'
 import Pause from './pause.js'
 import Tristris from './tristris.js'
 
+
 export default class Game {
 
-  constructor() {
+  constructor(config) {
+
+    const buildinfo = document.querySelector('build-info')
+
+    config.debug = !!buildinfo.attributes.debug
+    config.appVersion = buildinfo.attributes.build.value || ""
+
+    this.config = Object.freeze(config)
 
     this.machine = new StateMachine({
-      initialState: config.debug ? 'game' : 'title',
+      initialState: this.config.debug ? 'game' : 'title',
       states: {
         'pause' : Pause,
         'game'  : Tristris,
@@ -39,7 +44,7 @@ export default class Game {
       frameRate: document.getElementById('frame-rate'),
       appVersion: document.getElementById('app-version')
     }
-    this.text.appVersion.innerHTML = config.appVersion;
+    this.text.appVersion.innerHTML = `Build: ${this.config.appVersion}`
 
     this.frame =  {
       id: null,
@@ -56,7 +61,7 @@ export default class Game {
       timeout: this.frame.maxRate,
     }
 
-    this.canvas = getCanvas(config.graphics.canvas.id)
+    this.canvas = getCanvas(this.config.graphics.canvas.id)
     this.context = getContext(this.canvas)
     window.addEventListener('resize', () => this.resize())
     this.resize()
@@ -65,7 +70,7 @@ export default class Game {
   resize() {
     const canvas = document.createElement('canvas')
     const context = canvas.getContext('2d')
-    const scale = config.graphics.canvas.relativeSize
+    const scale = this.config.graphics.canvas.relativeSize
     const w = scale.w * window.innerWidth
     const h = scale.h * window.innerHeight
 

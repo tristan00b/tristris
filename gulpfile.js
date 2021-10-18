@@ -4,12 +4,14 @@ import browserSync from 'browser-sync'
 import buffer      from 'vinyl-buffer'
 import dartSass    from 'sass'
 import del         from 'del'
+import ejs         from 'gulp-ejs'
 import fiber       from 'fibers'
 import git         from 'gulp-git'
 import gulp        from 'gulp'
 import gulpif      from 'gulp-if'
 import gulpsass    from 'gulp-sass'
 import log         from 'gulplog'
+import rename      from 'gulp-rename'
 import sourcemaps  from 'gulp-sourcemaps'
 import srcstream   from 'vinyl-source-stream'
 import uglify      from 'gulp-uglify'
@@ -68,7 +70,10 @@ const assets = async _ => {
 }
 
 const markup = async _ => {
-  return src('app/**/*.html').pipe(dst('build'))
+  return src('app/**/*.@(ejs|html)')
+    .pipe(ejs())
+    .pipe(rename({ extname: '.html' }))
+    .pipe(dst('build'))
 }
 
 const scripts = async _ => {
@@ -110,7 +115,7 @@ gulp.task('watch:assets', async _ => {
 })
 
 gulp.task('watch:markup', async _ => {
-  gulp.watch('app/**/*.html', markup).on('change', reloadBrowser)
+  gulp.watch('app/**/*.@(ejs|html)', markup).on('change', reloadBrowser)
 })
 
 gulp.task('watch:scripts', async _ => {

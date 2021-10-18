@@ -6,7 +6,7 @@
   License: GPLv3
 */
 
-import config from './config.js'
+import config from '../assets/data/config.json'
 import {getCanvas, getContext, Point, Rect} from './util.js'
 
 export default class Graphics {

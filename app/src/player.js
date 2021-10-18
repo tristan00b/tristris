@@ -10,7 +10,7 @@
 */
 
 import Arena from './arena.js'
-import config from './config.js'
+import config from '../assets/data/config.json'
 import {EventDispatcher, EventObserver} from './event.js'
 import {deepCopy, zeroMatrix, Point, Rect} from './util.js'
 

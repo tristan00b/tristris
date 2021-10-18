@@ -7,7 +7,7 @@
   License: GPLv3
 */
 
-import config from './config.js'
+import config from '../assets/data/config.json'
 import {EventObserver, EventDispatcher} from './event.js'
 import {getCanvas, getContext, Point, Rect} from './util.js'
 import {State} from './state.js'

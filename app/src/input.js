@@ -6,12 +6,13 @@
   License: GPLv3
 */
 
-import config from './config.js'
 import {EventDispatcher, EventObserver} from './event.js'
 
 export class Input {
 
-  constructor() {
+  constructor(config) {
+
+    this.config = config
 
     document.addEventListener('keydown', event => {
       this.handleKeyDown(event)
@@ -29,8 +30,8 @@ export class Input {
 
 export default class InputHandler extends Input {
 
-  constructor(state, options = {}) {
-    super()
+  constructor(config, state, options = {}) {
+    super(config)
     this.consumesEvents = options.consumeEvents || false
     this.context = state.context
     this.contexts = config.input.contexts

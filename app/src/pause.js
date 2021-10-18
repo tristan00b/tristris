@@ -6,7 +6,7 @@
   License: GPLv3
 */
 
-import config from './config.js'
+import config from '../assets/data/config.json'
 import {State} from './state.js'
 
 export default class Pause extends State {

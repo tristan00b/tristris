@@ -10,7 +10,7 @@
   License: GPLv3
 */
 
-import config from './config.js'
+import config from '../assets/data/config.json'
 import {EventDispatcher, EventObserver} from './event.js'
 import {zeroMatrix} from './util.js'
 

@@ -6,7 +6,7 @@
   License: GPLv3
 */
 
-import config from './config.js'
+import config from '../assets/data/config.json'
 import {EventDispatcher, EventObserver} from './event.js'
 
 export default class SoundPlayer {

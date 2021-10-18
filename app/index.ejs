@@ -5,16 +5,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="/main.css" rel="stylesheet">
+    <link href="/assets/img/favicon.svg" rel="icon" type="image/svg+xml">
     <title>Tristris</title>
   </head>
   <body>
     <header></header>
-
     <main>
       <canvas class="game-canvas"></canvas>
     </main>
-
     <footer>
+      <build-info
+        build="<%= process.env.REVISION %>"
+        <% if (process.env.NODE_ENV === 'debug') { %>debug<% } %>>
+      </build-info>
       <span id="frame-rate"></span>
       <span id="app-version"></span>
     </footer>

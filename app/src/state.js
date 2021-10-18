@@ -6,7 +6,7 @@
   License: GPLv3
 */
 
-import config from './config.js'
+import config from '../assets/data/config.json'
 import {EventDispatcher, EventObserver} from './event.js'
 import InputHander from './input.js'
 
@@ -23,7 +23,7 @@ export class State {
   constructor(stateMachine, inputContext = {}) {
     this.machine = stateMachine
     this.context = inputContext
-    this.input = new InputHander(this, {consumeEvents: true})
+    this.input = new InputHander(config, this, {consumeEvents: true})
     this.dispatcher = EventDispatcher.getInstance();
     this.observer = new EventObserver()
   }

@@ -1,4 +1,4 @@
-import config from './config.js'
+import config from '../assets/data/config.json'
 import {getCanvas, getContext} from './util.js'
 import Graphics from './graphics.js'
 import {State} from './state.js'
