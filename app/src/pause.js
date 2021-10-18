@@ -6,12 +6,11 @@
   License: GPLv3
 */
 
-import config from '../assets/data/config.json'
 import {State} from './state.js'
 
 export default class Pause extends State {
-  constructor(stateMachine) {
-    super(stateMachine, config.input.contexts.pause)
+  constructor(game, stateMachine) {
+    super(stateMachine, game.config, game.config.input.scopes.pause)
     this.addPopTransition('game/unpause')
   }
 

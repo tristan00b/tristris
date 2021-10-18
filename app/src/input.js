@@ -10,10 +10,7 @@ import {EventDispatcher, EventObserver} from './event.js'
 
 export class Input {
 
-  constructor(config) {
-
-    this.config = config
-
+  constructor() {
     document.addEventListener('keydown', event => {
       this.handleKeyDown(event)
     })
@@ -30,14 +27,25 @@ export class Input {
 
 export default class InputHandler extends Input {
 
-  constructor(config, state, options = {}) {
-    super(config)
-    this.consumesEvents = options.consumeEvents || false
-    this.context = state.context
-    this.contexts = config.input.contexts
-    this.dispatcher = EventDispatcher.getInstance()
-    this.machine = state.machine
-    this.state = state
+  constructor({ scope, consumesEvents }) {
+    super()
+
+    this._isListening   = false
+    this.consumesEvents = consumesEvents || false
+    this.scope          = scope
+    this.dispatcher     = EventDispatcher.getInstance()
+  }
+
+  get isListening() {
+    return this._isListening
+  }
+
+  startListening() {
+    this._isListening = true
+  }
+
+  stopListening() {
+    this._isListening = false
   }
 
   canConsume(event) {
@@ -45,8 +53,7 @@ export default class InputHandler extends Input {
   }
 
   canProcess(event) {
-    return (this.state === this.machine.state)
-        && (event.keyCode in this.context)
+    return this.isListening && (event.keyCode in this.scope)
   }
 
   consumeIfRequired(event) {
@@ -56,7 +63,7 @@ export default class InputHandler extends Input {
   handleKeyDown(event) {
     if (this.canConsume(event) && this.canProcess(event)) {
       this.consumeIfRequired(event)
-      this.dispatcher.dispatch(new Event(this.context[event.keyCode]))
+      this.dispatcher.dispatch(new Event(this.scope[event.keyCode]))
     }
   }
 

@@ -1,8 +1,7 @@
-import config from '../assets/data/config.json'
 import {getCanvas, getContext} from './util.js'
 import Graphics from './graphics.js'
 import {State} from './state.js'
-import {Point, Rect} from './util.js'
+import {Point} from './util.js'
 
 class Particle {
 
@@ -29,14 +28,14 @@ class Particle {
 
 export default class Title extends State {
 
-  constructor(stateMachine) {
-    super(stateMachine, config.input.contexts.title)
+  constructor(game, stateMachine) {
+    super(stateMachine, game.config, game.config.input.scopes.title)
     this.addChangeTransition('game/start')
     this.addChangeTransition('game/exitToTitle')
 
-    this.canvas = getCanvas(config.graphics.canvas.id)
-    this.context = getContext(this.canvas)
-    this.graphics = new Graphics
+    this.canvas   = game.canvas
+    this.context  = game.context
+    this.graphics = game.graphics
 
     this.titleFontSize = 102
     this.fontSize = 22

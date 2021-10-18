@@ -6,13 +6,13 @@
   License: GPLv3
 */
 
-import config from '../assets/data/config.json'
 import {EventDispatcher, EventObserver} from './event.js'
 import InputHander from './input.js'
 
+
 class Transition {
   constructor(event, source, target) {
-    this.event = event
+    this.event  = event
     this.source = source
     this.target = target
   }
@@ -20,43 +20,46 @@ class Transition {
 
 export class State {
 
-  constructor(stateMachine, inputContext = {}) {
-    this.machine = stateMachine
-    this.context = inputContext
-    this.input = new InputHander(config, this, {consumeEvents: true})
-    this.dispatcher = EventDispatcher.getInstance();
-    this.observer = new EventObserver()
+  constructor(stateMachine, config, inputScope) {
+    this._name        = ''
+    this.config       = config
+    this.dispatcher   = EventDispatcher.getInstance()
+    this.input        = new InputHander({ scope: inputScope,  consumesEvents: true })
+    this.observer     = new EventObserver()
+    this.stateMachine = stateMachine
   }
 
   get name() {
-    return this._name || 'undefined'
+    return this._name
   }
 
   _addTransition(transition, handler) {
     this.observer.addHandler(transition, () =>
-      handler.call(this.machine, transition))
+      handler.call(this.stateMachine, transition))
     this.dispatcher.subscribe(transition, this.observer)
   }
 
   addChangeTransition(transition) {
-    this._addTransition(transition, this.machine.changeState)
+    this._addTransition(transition, this.stateMachine.changeState)
   }
 
   addPushTransition(transition) {
-    this._addTransition(transition, this.machine.pushState)
+    this._addTransition(transition, this.stateMachine.pushState)
   }
 
   addPopTransition(transition) {
-    this._addTransition(transition, this.machine.popState)
+    this._addTransition(transition, this.stateMachine.popState)
   }
 
   /* Methods overridden by subclass */
 
   enter() {
-    config.debug && console.log('entering ' + this.name)
+    this.input.startListening()
+    this.config.debug && console.log('entering ' + this.name)
   }
   exit() {
-    config.debug && console.log('exiting '  + this.name)
+    this.input.stopListening()
+    this.config.debug && console.log('exiting '  + this.name)
   }
   update(dt) { }
   draw()     { }
@@ -65,7 +68,7 @@ export class State {
 
 export class StateMachine {
 
-  constructor(options = {}) {
+  constructor(game, options = {}) {
 
     // assign option defaults
     const defaults = {
@@ -77,7 +80,7 @@ export class StateMachine {
     // prepare states dict
     const states = Object.entries(defaults.states).reduce((states, state) => {
       const [name, ctor] = state
-      states[name] = Object.assign(new ctor(this), {_name: name})
+      states[name] = Object.assign(new ctor(game, this), {_name: name})
       return states
     }, {})
     states.initialState = states[defaults.initialState]
@@ -108,14 +111,6 @@ export class StateMachine {
   set source(state) {
     this._source = state
   }
-
-  // get target() {
-  //   return this._target || {}
-  // }
-  //
-  // set target(state) {
-  //   return this._target
-  // }
 
   enterCurrentState() {
     this.state && this.state.enter()
@@ -155,12 +150,4 @@ export class StateMachine {
     this._pop()
     this.enterCurrentState()
   }
-
-  // update(dt = 0) {
-  //   this.state.update(dt)
-  // }
-  //
-  // draw() {
-  //   this._state.forEach(state => state.draw())
-  // }
 }

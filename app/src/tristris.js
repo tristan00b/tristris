@@ -7,30 +7,28 @@
   License: GPLv3
 */
 
-import config from '../assets/data/config.json'
-import {EventObserver, EventDispatcher} from './event.js'
-import {getCanvas, getContext, Point, Rect} from './util.js'
-import {State} from './state.js'
-import Arena from './arena.js'
-import Player from './player.js'
-import Graphics from './graphics.js'
-import SoundPlayer from './audio.js'
+import { Point,
+         Rect   } from './util.js'
+import { State  } from './state.js'
+import   Arena    from './arena.js'
+import   Player   from './player.js'
 
 export default class Tristris extends State {
 
-  constructor(stateMachine) {
+  constructor(game, stateMachine) {
+    super(stateMachine, game.config, game.config.input.scopes.game)
 
-    super(stateMachine, config.input.contexts.game)
     this.addPushTransition('game/pause')
     this.addChangeTransition('game/exitToTitle')
 
     this.observer.addHandler('arena/overflows', () => this.restartGame())
     this.observer.registerHandlers(this.dispatcher)
 
-    this.canvas = getCanvas(config.graphics.canvas.id)
-    this.context = getContext(this.canvas)
+    this.canvas   = game.graphics.canvas
+    this.context  = game.graphics.context
+    this.graphics = game.graphics
 
-    const {grid, tileScale} = config.graphics
+    const {grid, tileScale} = game.config.graphics
     const self = this
 
     this.dimensions = {
@@ -43,15 +41,13 @@ export default class Tristris extends State {
       }
     }
 
-    this.graphics = new Graphics(this)
-    this.audio = new SoundPlayer(this)
     this.arena = new Arena(this)
     this.player = new Player(this)
   }
 
   resize() {
-    const grid  = this.dimensions.grid
-    const scale = this.dimensions.scale
+    const grid   = this.dimensions.grid
+    const scale  = this.dimensions.scale
     const border = this.dimensions.border
     let w = 0, h = 0
 
@@ -83,7 +79,7 @@ export default class Tristris extends State {
     super.enter.call(this)
     this.resize()
 
-    if ('pause' === this.machine.source.name) return
+    if ('pause' === this.stateMachine.source.name) return
 
     this.restartGame()
     this.dispatcher.dispatch(new Event('game/started'))

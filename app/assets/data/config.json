@@ -74,7 +74,7 @@
     "tileScale": 36
   },
   "input": {
-    "contexts" : {
+    "scopes" : {
       "title" : {
         "13": "game/start",
         "27": "game/exitToTitle"
@@ -113,9 +113,9 @@
       "assets/audio/soundtrack/13.mp3"
     ],
     "eventEffectMap" : {
-      "arena/rowsCleared": "assets/audio/effects/button.wav",
-      "player/rotated" : "assets/audio/effects/blip.wav",
-      "player/slammed" : "assets/audio/effects/slam.wav"
+      "arena/rowsCleared" : "assets/audio/effects/button.wav",
+      "player/rotated"    : "assets/audio/effects/blip.wav",
+      "player/slammed"    : "assets/audio/effects/slam.wav"
     }
   }
 }

@@ -6,25 +6,31 @@
   License: GPLv3
 */
 
-import {getCanvas, getContext} from './util.js'
-import {StateMachine} from './state.js'
-import Title from './title.js'
-import Pause from './pause.js'
-import Tristris from './tristris.js'
+import { getCanvas,
+         getContext   } from './util.js'
+import { StateMachine } from './state.js'
+import   Graphics       from './graphics.js'
+import   Pause          from './pause.js'
+import   Title          from './title.js'
+import   Tristris       from './tristris.js'
+import   SoundPlayer    from './audio.js'
 
 
 export default class Game {
 
   constructor(config) {
 
-    const buildinfo = document.querySelector('build-info')
-
-    config.debug = !!buildinfo.attributes.debug
+    const buildinfo   = document.querySelector('build-info')
+    config.debug      = !!buildinfo.attributes.debug
     config.appVersion = buildinfo.attributes.build.value || ""
 
-    this.config = Object.freeze(config)
+    this.config   = Object.freeze(config)
+    this.canvas   = getCanvas(this.config.graphics.canvas.id)
+    this.context  = getContext(this.canvas)
+    this.audio    = new SoundPlayer(this)
+    this.graphics = new Graphics(this)
 
-    this.machine = new StateMachine({
+    this.stateMachine = new StateMachine(this, {
       initialState: this.config.debug ? 'game' : 'title',
       states: {
         'pause' : Pause,
@@ -32,11 +38,11 @@ export default class Game {
         'title' : Title,
       },
       transitions: [
-        ['game/start',       'title', 'game'],
+        ['game/start',       'title', 'game' ],
         ['game/exitToTitle', 'game',  'title'],
-        ['game/exitToTitle', 'title',  'title'],
+        ['game/exitToTitle', 'title', 'title'],
         ['game/pause',       'game',  'pause'],
-        ['game/unpause',     'pause', 'game'],
+        ['game/unpause',     'pause', 'game' ],
       ]
     })
 
@@ -61,8 +67,6 @@ export default class Game {
       timeout: this.frame.maxRate,
     }
 
-    this.canvas = getCanvas(this.config.graphics.canvas.id)
-    this.context = getContext(this.canvas)
     window.addEventListener('resize', () => this.resize())
     this.resize()
   }
@@ -92,7 +96,7 @@ export default class Game {
   }
 
   get state() {
-    return this.machine.state
+    return this.stateMachine.state
   }
 
   start() {
