@@ -1,4 +1,6 @@
-![](./app/assets/img/tristris-logo.png)
+<p align="center">
+  <img src="https://github.com/tristan00b/tristris/blob/master/app/assets/img/tristris.png">
+</p>
 
 A Tetris clone written in JavaScript.<!--more--> No external dependencies used, only Babel for enabling ES6+ features, and Gulp.js for packaging. Visit the repo to view the [source](https://github.com/tristan00b/tristris), or just have a <a href="https://bayfield.io/tristris" target="_blank" rel="noopener noreferrer">play now!</a>
 
