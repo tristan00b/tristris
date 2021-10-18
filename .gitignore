@@ -1,9 +1,7 @@
-# game assests
+.*
+!.gitignore
 assets/
-art/
-
-# node
+!assets/data/
+!assets/img/
+build/
 node_modules/
-
-# webpack
-dist/
