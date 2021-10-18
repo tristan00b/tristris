@@ -21,7 +21,7 @@ export default class Game {
   constructor(config) {
 
     const buildinfo   = document.querySelector('build-info')
-    config.debug      = !!buildinfo.attributes.debug
+    config.debug      = !buildinfo.attributes.debug
     config.appVersion = buildinfo.attributes.build.value || ""
 
     this.config   = Object.freeze(config)
@@ -41,6 +41,8 @@ export default class Game {
         ['game/start',       'title', 'game' ],
         ['game/exitToTitle', 'game',  'title'],
         ['game/exitToTitle', 'title', 'title'],
+        ['game/over',        'game',  'pause'],
+        ['game/over',        'pause', 'title'],
         ['game/pause',       'game',  'pause'],
         ['game/unpause',     'pause', 'game' ],
       ]

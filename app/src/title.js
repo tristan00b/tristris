@@ -1,5 +1,3 @@
-import {getCanvas, getContext} from './util.js'
-import Graphics from './graphics.js'
 import {State} from './state.js'
 import {Point} from './util.js'
 
@@ -30,8 +28,6 @@ export default class Title extends State {
 
   constructor(game, stateMachine) {
     super(stateMachine, game.config, game.config.input.scopes.title)
-    this.addChangeTransition('game/start')
-    this.addChangeTransition('game/exitToTitle')
 
     this.canvas   = game.canvas
     this.context  = game.context
@@ -72,7 +68,6 @@ export default class Title extends State {
   }
 
   updateParticles(dt = 0) {
-
     if (this.particles.length < 500)
       this.particles.push(new Particle(this.size))
 
@@ -104,7 +99,6 @@ export default class Title extends State {
   }
 
   drawText() {
-
     const options = {
       fillStyle: 'white',
       strokeStyle: 'red',

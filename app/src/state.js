@@ -25,7 +25,6 @@ export class State {
     this.config       = config
     this.dispatcher   = EventDispatcher.getInstance()
     this.input        = new InputHander({ scope: inputScope,  consumesEvents: true })
-    this.observer     = new EventObserver()
     this.stateMachine = stateMachine
   }
 
@@ -33,23 +32,7 @@ export class State {
     return this._name
   }
 
-  _addTransition(transition, handler) {
-    this.observer.addHandler(transition, () =>
-      handler.call(this.stateMachine, transition))
-    this.dispatcher.subscribe(transition, this.observer)
-  }
 
-  addChangeTransition(transition) {
-    this._addTransition(transition, this.stateMachine.changeState)
-  }
-
-  addPushTransition(transition) {
-    this._addTransition(transition, this.stateMachine.pushState)
-  }
-
-  addPopTransition(transition) {
-    this._addTransition(transition, this.stateMachine.popState)
-  }
 
   /* Methods overridden by subclass */
 
@@ -69,6 +52,8 @@ export class State {
 export class StateMachine {
 
   constructor(game, options = {}) {
+    this.observer   = new EventObserver()
+    this.dispatcher = EventDispatcher.getInstance()
 
     // assign option defaults
     const defaults = {
@@ -112,14 +97,6 @@ export class StateMachine {
     this._source = state
   }
 
-  enterCurrentState() {
-    this.state && this.state.enter()
-  }
-
-  exitCurrentState() {
-    this.state && this.state.exit()
-  }
-
   _push(state) {
     this._state.push(state)
   }
@@ -128,26 +105,52 @@ export class StateMachine {
     return this.source = this._state.pop()
   }
 
-  changeState(transition) {
-    if (transition in this.transitions) {
-      this.exitCurrentState()
-      this._pop()
-      this._push(this.transitions[transition].target)
-      this.enterCurrentState()
-    }
-  }
-
   pushState(transition) {
     if (transition in this.transitions) {
-      this.exitCurrentState()
+      this.exitState()
       this._push(this.transitions[transition].target)
-      this.enterCurrentState()
+      this.enterState()
     }
   }
 
   popState() {
-    this.exitCurrentState()
+    this.exitState()
     this._pop()
-    this.enterCurrentState()
+    this.enterState()
   }
+
+  _addTransition(transition, handler) {
+    this.observer.addHandler(transition, () =>
+      handler.call(this.stateMachine, transition))
+    this.dispatcher.subscribe(transition, this.observer)
+  }
+
+  addChangeTransition(transition) {
+    this._addTransition(transition, this.stateMachine.changeState)
+  }
+
+  addPushTransition(transition) {
+    this._addTransition(transition, this.stateMachine.pushState)
+  }
+
+  addPopTransition(transition) {
+    this._addTransition(transition, this.stateMachine.popState)
+  }
+
+  enterState() {
+    this.state && this.state.enter()
+  }
+
+  exitState() {
+    this.state && this.state.exit()
+  }
+  changeState(transition) {
+    if (transition in this.transitions) {
+      this.exitState()
+      this._pop()
+      this._push(this.transitions[transition].target)
+      this.enterState()
+    }
+  }
+
 }

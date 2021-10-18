@@ -1,6 +1,6 @@
 ![](./app/assets/img/tristris-logo.png)
 
-[Play now!](#) (link to be updated soon)
+A Tetris clone written in JavaScript.<!--more--> No external dependencies used, only Babel for enabling ES6+ features, and Gulp.js for packaging. Visit the repo to view the [source](https://github.com/tristan00b/tristris), or just have a <a href="https://bayfield.io/tristris" target="_blank" rel="noopener noreferrer">play now!</a>
 
 ### Controls
 
@@ -10,6 +10,7 @@
 - Pause: `P`
 - Mute Track: `M`
 - Skip Track: `S`
+- Use system controls for setting audio volume
 
 ### Attributes
 

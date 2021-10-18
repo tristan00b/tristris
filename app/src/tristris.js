@@ -18,8 +18,8 @@ export default class Tristris extends State {
   constructor(game, stateMachine) {
     super(stateMachine, game.config, game.config.input.scopes.game)
 
-    this.addPushTransition('game/pause')
-    this.addChangeTransition('game/exitToTitle')
+    // this.addPushTransition('game/pause')
+    // this.addChangeTransition('game/exitToTitle')
 
     this.observer.addHandler('arena/overflows', () => this.restartGame())
     this.observer.registerHandlers(this.dispatcher)
@@ -208,5 +208,4 @@ export default class Tristris extends State {
   restartGame() {
     this.dispatcher.dispatch(new Event('game/restarted'))
   }
-
 }

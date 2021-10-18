@@ -11,7 +11,6 @@ import {State} from './state.js'
 export default class Pause extends State {
   constructor(game, stateMachine) {
     super(stateMachine, game.config, game.config.input.scopes.pause)
-    this.addPopTransition('game/unpause')
   }
 
   enter() {

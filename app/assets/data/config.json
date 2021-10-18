@@ -114,6 +114,7 @@
     ],
     "eventEffectMap" : {
       "arena/rowsCleared" : "assets/audio/effects/button.wav",
+      "game/over"         : "assets/audio/effects/gameover.wav",
       "player/rotated"    : "assets/audio/effects/blip.wav",
       "player/slammed"    : "assets/audio/effects/slam.wav"
     }
